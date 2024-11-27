@@ -53,3 +53,10 @@ export interface IOrderingData {
 export type TProductCardData = Pick<IProduct, 'id' | 'title' | 'image' | 'description' | 'category' | 'price'>;
 export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
 export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
+
+// ----------ModelEvents ----------
+export enum ProductsDataEvents {
+	CatalogChanged = 'products:changed',
+	SelectProduct = 'products:selected',
+	DeselectProduct = 'products:deselected'
+}

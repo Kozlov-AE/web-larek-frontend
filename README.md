@@ -184,10 +184,10 @@ constructor(data: Partial<T>, protected events: IEvents)
 - `_products` - коллекция товаров представленных на витрине магазина.
 - `_selectedProduct` - выбранный продукт, который отображается в виде карточки
 Данный класс также предоставляет следующие методы для работы с хранимыми данными:
-- `addProduct(product: IProduct): void` - добавление продукта в коллекцию
+- `addProducts(products: IProducts[]): void` - добавить несколько продуктов в коллекцию
 - `getProduct(id: string): IProduct` - получение продукта по id
-- `updateProduct(id: string, newProduct: IProduct): void;` - обновление продукта с определенным id
-- `deleteProduct(id: string): void` - удалить продукт из коллекции по id
+- `selectProduct(): void` - назначить выделенный продукт
+- `deselectProduct(): void` - снять выделение с продукта
 
 #### Класс OrderingData
 Отвечает за хранение и управление данными заказа.
