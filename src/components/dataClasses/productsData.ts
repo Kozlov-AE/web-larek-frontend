@@ -1,7 +1,7 @@
-import { IProduct, ProductsDataEvents, } from "../../../types";
-import { IEvents } from "../events";
+import { IProduct, IProductsData, ProductsDataEvents, } from "../../types";
+import { IEvents } from "../base/events";
 
-export class ProductsData {
+export class ProductsData implements IProductsData {
   readonly #events: IEvents;
   readonly #products: IProduct[];
   #selectedProduct: IProduct;

@@ -29,19 +29,17 @@ export interface IOrdering {
 }
 
 export interface IProductsData {
-	products: IProduct[];
-	selectedProduct: IProduct | null;
-
-	addProduct(product: IProduct): void;
+	addProducts(products: IProduct[]): void;
 	getProduct(id: string): IProduct;
-	updateProduct(id: string, newProduct: IProduct): void;
-	deleteProduct(id: string): void;
+	getProducts(): IProduct[]|null;
+	selectProduct(id: string): void;
+	deselectProduct(): void;
 }
 
 export interface IOrderingData {
-	setOrderDetails(details: TOrderDetails): IOrdering;
-	setClientDetails(details: TClientDetails): IOrdering;
-	addProduct(productId: string): void;
+	setOrderDetails(details: TOrderDetails): boolean;
+	setClientDetails(details: TClientDetails): boolean;
+	addProduct(productId: IProduct): void;
 	deleteProduct(productId: string): void;
 	getOrdering(): IOrdering;
 	toOrder(): boolean;
@@ -59,4 +57,22 @@ export enum ProductsDataEvents {
 	CatalogChanged = 'products:changed',
 	SelectProduct = 'products:selected',
 	DeselectProduct = 'products:deselected'
+}
+
+// ----------ModelEvents ----------
+export enum OrderingDataEvents {
+	ProductAdded = 'basket:added',
+	ProductDeleted = 'basket:deleted',
+	ValidationError = 'order:validationError',
+}
+
+// --------- ValidationErrorFields ----------
+export type TErroredField {
+	field: string;
+}
+export enum ValidationErrorFields {
+	PaymentType = 'order:order__buttons',
+	Address = 'order:address',
+	Email = 'contacts:email',
+	Phone = 'contacts:phone',
 }
