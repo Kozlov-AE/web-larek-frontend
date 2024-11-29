@@ -1,5 +1,5 @@
 //----------------------------- Типы, отвечающие за хранение данных и работу с Api ------------------------------
-export type TPaymentType = 'online ' | 'cash';
+export type TPaymentType = 'online' | 'cash';
 
 export type TProductCategory =
 	| 'софт-скил'
@@ -24,8 +24,6 @@ export interface IOrdering {
 	address: string;
 	total: number;
 	items: string[];
-
-	Send(): void;
 }
 
 export interface IProductsData {
@@ -37,8 +35,8 @@ export interface IProductsData {
 }
 
 export interface IOrderingData {
-	setOrderDetails(details: TOrderDetails): boolean;
-	setClientDetails(details: TClientDetails): boolean;
+	setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void>;
+	setClientDetails(details: TClientDetails, isEmptyCheck: boolean): Promise<void>;
 	addProduct(productId: IProduct): void;
 	deleteProduct(productId: string): void;
 	getOrdering(): IOrdering;
@@ -64,12 +62,14 @@ export enum OrderingDataEvents {
 	ProductAdded = 'basket:added',
 	ProductDeleted = 'basket:deleted',
 	ValidationError = 'order:validationError',
+	TotalUpdated = 'basket:total'
 }
 
 // --------- ValidationErrorFields ----------
-export type TErroredField {
-	field: string;
+export type TErroredField = {
+	field: string
 }
+
 export enum ValidationErrorFields {
 	PaymentType = 'order:order__buttons',
 	Address = 'order:address',
