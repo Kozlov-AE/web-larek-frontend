@@ -1,3 +1,4 @@
+import { IProduct } from "../types";
 import { Api } from "./base/api";
 
 export class LarekApi extends Api {
@@ -5,4 +6,11 @@ export class LarekApi extends Api {
     super(baseUrl);
 
   }
+
+  async getProductList(): Promise<IProduct[]>{
+    const response = await super.get('/product/');
+    return response as IProduct[];
+  }
+
+
 }
