@@ -17,6 +17,15 @@ export interface IProduct {
 	price: number;
 }
 
+export function checkIProduct(obj: object): boolean {
+	return 'id' in obj
+			&& 'title' in obj
+			&& 'description' in obj
+			&& 'image' in obj
+			&& 'category' in obj
+			&& 'price' in obj;
+}
+
 export interface IOrdering {
 	email: string;
 	phone: string;
@@ -24,6 +33,15 @@ export interface IOrdering {
 	address: string;
 	total: number;
 	items: string[];
+}
+
+export function checkIOrdering(obj: object): boolean {
+	return 'email' in obj
+			&& 'phone' in obj
+			&& 'paymentType' in obj
+			&& 'address' in obj
+			&& 'total' in obj
+			&& 'items' in obj;
 }
 
 export interface IProductsData {
@@ -43,6 +61,18 @@ export interface IOrderingData {
 	toOrder(): boolean;
 	checkOrdering(): boolean;
 	clear(): void;
+}
+
+export abstract class SendOrderingResult {
+}
+
+export class SendOrderingSuccessResult extends SendOrderingResult {
+	id: string;
+	total: number;
+}
+
+export class SendOrderingErrorResult extends SendOrderingResult {
+	error: string;
 }
 
 // ---------- UI types ----------
