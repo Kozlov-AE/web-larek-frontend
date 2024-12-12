@@ -95,6 +95,9 @@ export enum OrderingDataEvents {
 	TotalUpdated = 'basket:total'
 }
 
+// ----------View Events ----------
+
+
 // --------- ValidationErrorFields ----------
 export type TErroredField = {
 	field: string
