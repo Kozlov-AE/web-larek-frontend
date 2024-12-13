@@ -4,7 +4,7 @@ import {IEvents} from "./events";
  * Базовый компонент
  */
 export abstract class Component<T> {
-    protected readonly container: HTMLElement
+    protected container: HTMLElement
     protected constructor(container: HTMLElement) {
         // Учитывайте что код в конструкторе исполняется ДО всех объявлений в дочернем классе
         this.container = container;

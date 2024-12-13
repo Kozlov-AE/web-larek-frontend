@@ -96,7 +96,11 @@ export enum OrderingDataEvents {
 }
 
 // ----------View Events ----------
-
+export enum ProductItemEvents {
+	ProductSelected = 'product:selected',
+	BuyProduct = 'product:buy',
+	RemoveProduct = 'product:remove',
+}
 
 // --------- ValidationErrorFields ----------
 export type TErroredField = {
