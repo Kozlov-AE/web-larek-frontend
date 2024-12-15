@@ -6,14 +6,17 @@ import './scss/styles.scss';
 import { IProduct } from './types';
 import { API_URL } from './utils/constants';
 import { ValidationService } from './utils/validationService';
+import { Catalog } from './components/view/catalog';
+import { Product } from './components/view/product';
+import { cloneTemplate } from './utils/utils';
 
-// const products: IProduct[] = [
-//   {
-//     id: '1', title: 'Product 1', price: 100, description: 'Description 1', image: 'https://images.pexels.com/photos/106999/pexels-photo-106999.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260', category: 'софт-скил'
-//   },
-//   {
-//     id: '2', title: 'Product 2', price: 200, description: 'Description 2', image: 'https://images.pexels.com/photos/106999/pexels-photo-106999.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260', category: 'кнопка'
-//   }
+// let products: IProduct[] = [
+//  {
+//    id: '1', title: 'Product 1', price: 100, description: 'Description 1', image: 'https://images.pexels.com/photos/106999/pexels-photo-106999.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260', category: 'софт-скил'
+//  },
+//  {
+//    id: '2', title: 'Product 2', price: 200, description: 'Description 2', image: 'https://images.pexels.com/photos/106999/pexels-photo-106999.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260', category: 'кнопка'
+//  }
 // ]
 
 
@@ -22,14 +25,23 @@ const validationService= new ValidationService();
 const api = new LarekApi(API_URL)
 
 
-let products: IProduct[];
+//let products: IProduct[];
 const productsData = new ProductsData(events);
 const  ordering = new OrderingData(events, validationService);
 
-api.getProductList().then(res => {
-  products = res;
-  productsData.addProducts(products);
+const catalogContainer = new Catalog(document.querySelector('.gallery'));
+const prs: HTMLElement[] = [];
+const productTemplate:HTMLTemplateElement = document.querySelector('#card-catalog');
+
+Promise.all([api.getProductList()]).then(x => {
+  productsData.addProducts(x[0]);
+  x[0].forEach(product => {
+    const pr = new Product(cloneTemplate(productTemplate), events);
+    prs.push(pr.render(product));
+  })
+  catalogContainer.render({ catalog:prs });
 })
+
 
 
 

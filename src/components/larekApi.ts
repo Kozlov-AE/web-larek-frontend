@@ -12,7 +12,6 @@ import { boolean } from 'yup';
 export class LarekApi extends Api {
   constructor(baseUrl: string) {
     super(baseUrl);
-
   }
 
   async getProductList(): Promise<IProduct[]>{

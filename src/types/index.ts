@@ -80,6 +80,10 @@ export type TProductCardData = Pick<IProduct, 'id' | 'title' | 'image' | 'descri
 export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
 export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 
+export interface ICatalog {
+	catalog: HTMLElement[];
+}
+
 // ----------ModelEvents ----------
 export enum ProductsDataEvents {
 	CatalogChanged = 'products:changed',
