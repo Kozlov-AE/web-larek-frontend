@@ -82,6 +82,7 @@ export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 
 export interface ICatalog {
 	catalog: HTMLElement[];
+	render(data?: Partial<ICatalog>): HTMLElement
 }
 
 // ----------ModelEvents ----------

@@ -1,0 +1,35 @@
+import { IProductsData, ICatalog, ProductsDataEvents } from '../../types';
+import { IEvents } from '../base/events';
+import * as events from 'node:events';
+import { Product } from '../view/product';
+import { cloneTemplate } from '../../utils/utils';
+import { Catalog } from '../view/catalog';
+
+export class CatalogPresenter {
+	private _events: IEvents;
+	private _productsData: IProductsData;
+	private _catalogView: ICatalog;
+	private _template: HTMLTemplateElement;
+	private _catalogContainer: HTMLElement;
+
+	constructor(events: IEvents, catalog: ICatalog, productsData: IProductsData, productTemplate: HTMLTemplateElement) {
+		this._events = events;
+		this._productsData = productsData;
+		this._catalogView = catalog;
+		this._template = productTemplate;
+
+		this.subscribeToDataEvents();
+	}
+
+	private subscribeToDataEvents(): void {
+		this._events.on(ProductsDataEvents.CatalogChanged, products => {
+			let renderedProducts: HTMLElement[];
+			if (Array.isArray(products)) {
+				renderedProducts = products.map(p => {
+					return new Product(cloneTemplate(this._template), this._events).render(p);
+				});
+			}
+			this._catalogView.render( { catalog:renderedProducts } );
+		})
+	}
+}
