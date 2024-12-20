@@ -3,7 +3,7 @@ import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 import { CDN_URL } from '../../utils/constants';
 
-export class Product extends Component<IProduct> {
+export class ProductView extends Component<IProduct> {
 	private _events: IEvents;
 	private _isInTheBasket: boolean;
 

@@ -3,7 +3,7 @@ import { IEvents } from '../base/events';
 import * as events from 'node:events';
 import { Product } from '../view/product';
 import { cloneTemplate } from '../../utils/utils';
-import { Catalog } from '../view/catalog';
+import { CatalogView } from '../view/catalog';
 
 export class CatalogPresenter {
 	private _events: IEvents;

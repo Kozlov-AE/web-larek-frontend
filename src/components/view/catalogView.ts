@@ -1,7 +1,7 @@
 import { Component } from '../base/Component';
 import { ICatalog } from '../../types';
 
-export class Catalog extends Component<ICatalog> {
+export class CatalogView extends Component<ICatalog> {
 	protected _catalog: HTMLElement;
 	constructor(container: HTMLElement) {
 		super(container);

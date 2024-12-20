@@ -3,12 +3,9 @@ import { OrderingData } from './components/dataClasses/orderingData';
 import { ProductsData } from './components/dataClasses/productsData';
 import { LarekApi } from './components/larekApi';
 import './scss/styles.scss';
-import { IProduct } from './types';
 import { API_URL } from './utils/constants';
 import { ValidationService } from './utils/validationService';
-import { Catalog } from './components/view/catalog';
-import { Product } from './components/view/product';
-import { cloneTemplate } from './utils/utils';
+import { CatalogView } from './components/view/catalogView';
 import { CatalogPresenter } from './components/presenter/catalogPresenter';
 
 const events = new EventEmitter();
@@ -18,7 +15,7 @@ const api = new LarekApi(API_URL)
 const productsData = new ProductsData(events);
 const orderingData = new OrderingData(events, validationService);
 
-const catalogContainer = new Catalog(document.querySelector('.gallery'));
+const catalogContainer = new CatalogView(document.querySelector('.gallery'));
 const prs: HTMLElement[] = [];
 // const productTemplate:HTMLTemplateElement = document.querySelector('#card-catalog');
 
