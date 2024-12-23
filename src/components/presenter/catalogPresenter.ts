@@ -1,9 +1,9 @@
 import { IProductsData, ICatalog, ProductsDataEvents } from '../../types';
 import { IEvents } from '../base/events';
 import * as events from 'node:events';
-import { Product } from '../view/product';
+import { ProductView } from '../view/productView';
 import { cloneTemplate } from '../../utils/utils';
-import { CatalogView } from '../view/catalog';
+import { CatalogView } from '../view/catalogView';
 
 export class CatalogPresenter {
 	private _events: IEvents;
@@ -27,7 +27,7 @@ export class CatalogPresenter {
 			let renderedProducts: HTMLElement[];
 			if (Array.isArray(products)) {
 				renderedProducts = products.map(p => {
-					return new Product(cloneTemplate(this._template), this._events).render(p);
+					return new ProductView(cloneTemplate(this._template), this._events).render(p);
 				});
 			}
 			this._catalogView.render( { catalog:renderedProducts } );
@@ -35,6 +35,6 @@ export class CatalogPresenter {
 	}
 
 	private subscribeToViewEvents(): void {
-
+		return;
 	}
 }

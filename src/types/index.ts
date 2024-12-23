@@ -85,14 +85,14 @@ export interface ICatalog {
 	render(data?: Partial<ICatalog>): HTMLElement
 }
 
-// ----------ModelEvents ----------
+// ----------Products ModelEvents ----------
 export enum ProductsDataEvents {
 	CatalogChanged = 'products:changed',
 	SelectProduct = 'products:selected',
 	DeselectProduct = 'products:deselected'
 }
 
-// ----------ModelEvents ----------
+// ----------Ordering ModelEvents ----------
 export enum OrderingDataEvents {
 	ProductAdded = 'basket:added',
 	ProductDeleted = 'basket:deleted',
