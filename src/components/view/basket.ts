@@ -12,8 +12,4 @@ export class Basket extends Component<IOrdering> {
     super(container);
   }
 
-  set items(items: HTMLElement[]) {
-    super.
-  }
-
 }
