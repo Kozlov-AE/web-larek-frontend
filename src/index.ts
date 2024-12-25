@@ -9,11 +9,13 @@ import { CatalogView } from './components/view/catalogView';
 import { CatalogPresenter } from './components/presenter/catalogPresenter';
 import { BasketButtonView } from './components/view/basketButtonView';
 import { OrderingPresenter } from './components/presenter/orderingPresenter';
+import { ModalManagementService } from './utils/modalManagementService';
 
-// Инициализация базовых классов
+// Инициализация базовых классов и сервисов
 const events = new EventEmitter();
 const validationService= new ValidationService();
-const api = new LarekApi(API_URL)
+const api = new LarekApi(API_URL);
+const modalService = new ModalManagementService()
 
 // Инициализация классов данных
 const productsData = new ProductsData(events);

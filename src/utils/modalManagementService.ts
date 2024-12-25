@@ -4,19 +4,17 @@ import { OrderingPresenter } from '../components/presenter/orderingPresenter';
 
 export class ModalManagementService {
 	private _events: IEvents;
+	private _body: HTMLBodyElement
 	private _modalContainer: HTMLElement;
-	private _catalogPresenter: CatalogPresenter;
-	private _orderingPresenter: OrderingPresenter
+
 
 	private _openedPopup: HTMLElement | null = null;
 
 	constructor(events: IEvents,
-							modalContainer: HTMLElement,
-							catalogPresenter: CatalogPresenter,
-							orderingPresenter: OrderingPresenter) {
+							body: HTMLBodyElement) {
 		this._events = events;
-		this._modalContainer = modalContainer;
-		this._catalogPresenter = catalogPresenter;
-		this._orderingPresenter = orderingPresenter;
+		this._body = body;
+
+		this._events.on()
 	}
 }
