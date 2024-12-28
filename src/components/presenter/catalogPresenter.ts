@@ -11,19 +11,22 @@ export class CatalogPresenter {
 	private _modalService: ModalManagementService;
 	private _productsData: IProductsData;
 	private _catalogView: ICatalog;
-	private _template: HTMLTemplateElement;
+	private _catalogItemTemplate: HTMLTemplateElement;
 	private _catalogContainer: HTMLElement;
+	private _productCardTemplate: HTMLTemplateElement
 
 	constructor(events: IEvents,
 							modalService: ModalManagementService,
 							catalog: ICatalog,
 							productsData: IProductsData,
-							productTemplate: HTMLTemplateElement) {
+							productTemplate: HTMLTemplateElement,
+							productCardTemplate: HTMLTemplateElement) {
 		this._events = events;
 		this._modalService = modalService;
 		this._productsData = productsData;
 		this._catalogView = catalog;
-		this._template = productTemplate;
+		this._catalogItemTemplate = productTemplate;
+		this._productCardTemplate = productCardTemplate;
 
 		this.subscribeToDataEvents();
 		this.subscribeToViewEvents();
@@ -34,7 +37,7 @@ export class CatalogPresenter {
 			let renderedProducts: HTMLElement[];
 			if (Array.isArray(products)) {
 				renderedProducts = products.map(p => {
-					return new ProductView(cloneTemplate(this._template), this._events).render(p);
+					return new ProductView(cloneTemplate(this._catalogItemTemplate), this._events).render(p);
 				});
 			}
 			this._catalogView.render( { catalog:renderedProducts } );
@@ -44,8 +47,9 @@ export class CatalogPresenter {
 	private subscribeToViewEvents(): void {
 		this._events.on(ProductItemEvents.ProductSelected, pr => {
 			if (typeof(pr) === typeof(ProductView)) {
-				const product = pr as ProductView;
-				product
+				const productData = this._productsData.getProduct((pr as ProductView).id);
+				const view = new ProductView(cloneTemplate(this._productCardTemplate), this._events).render(productData);
+
 			}
 		})
 		return;
