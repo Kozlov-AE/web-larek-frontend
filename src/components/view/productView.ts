@@ -3,9 +3,16 @@ import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 import { CDN_URL } from '../../utils/constants';
 
-export class ProductView extends Component<IProduct> {
-	private _events: IEvents;
-	private _isInTheBasket: boolean;
+export enum ProductViewType {
+	Catalog,
+	Preview,
+	Basket
+}
+
+export abstract class ProductView extends Component<IProduct> {
+	protected _events: IEvents;
+	protected _isInTheBasket: boolean;
+	protected _viewType: ProductViewType;
 
 	protected _id: string;
 	protected _title: HTMLElement;
@@ -13,8 +20,7 @@ export class ProductView extends Component<IProduct> {
 	protected _price: HTMLElement;
 	protected _image: HTMLImageElement;
 	protected _category: HTMLElement;
-
-	private _button: HTMLButtonElement;
+	protected _button: HTMLButtonElement;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
@@ -26,22 +32,6 @@ export class ProductView extends Component<IProduct> {
 		this._image = this.container.querySelector('.card__image');
 		this._category = this.container.querySelector('.card__category');
 		this._button = this.container.querySelector('.card__button');
-
-		if (this._image) {
-			this._image.addEventListener('click', () => {
-				this._events.emit(ProductItemEvents.ProductSelected, this);
-			});
-		}
-
-		if (this._button) {
-			this._button.addEventListener('click', () => {
-				if (this._isInTheBasket) {
-					this._events.emit(ProductItemEvents.RemoveProduct, this);
-				} else {
-					this._events.emit(ProductItemEvents.BuyProduct, this);
-				}
-			});
-		}
 	}
 
 	get isInTheBasket() {
@@ -83,5 +73,18 @@ export class ProductView extends Component<IProduct> {
 	delete() {
 		this.container.remove();
 		this.container = null;
+	}
+
+	private buyDisable(){
+		switch (this._viewType){
+			case ProductViewType.Preview:
+				this._button.disabled = true;
+				break;
+			case ProductViewType.Catalog:
+				break;
+			case ProductViewType.Basket:
+				break;
+		}
+		this.render();
 	}
 }

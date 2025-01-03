@@ -4,28 +4,28 @@ import { ValidationService } from "../../utils/validationService";
 import { IEvents } from "../base/events";
 
 export class OrderingData implements IOrderingData {
-  readonly #events: IEvents;
-  readonly #validator: ValidationService;
-  #basket: IProduct[] = [];
+  private readonly _events: IEvents;
+  private readonly _validator: ValidationService;
+  private _basket: IProduct[] = [];
   #orderingDetails: TOrderDetails = {paymentType: 'online', address: ''};
   #clientDetails: TClientDetails = {email: '', phone: ''};
   #ordering: IOrdering;
 
   constructor(events: IEvents, validationService: ValidationService) {
-    this.#events = events;
-    this.#validator = validationService;
+    this._events = events;
+    this._validator = validationService;
   }
 
   async setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean = false): Promise<void> {
     let error: TErroredField = {field: ''};
 
-      await this.#validator.checkNonEmptyString(details.paymentType)
+      await this._validator.checkNonEmptyString(details.paymentType)
       .then(x => {
         if(x){
           this.#orderingDetails.paymentType = details.paymentType;
         } else{
           error.field = ValidationErrorFields.PaymentType;
-          this.#events.emit(OrderingDataEvents.ValidationError, error);
+          this._events.emit(OrderingDataEvents.ValidationError, error);
         }
       })
       .catch(x => {
@@ -34,13 +34,13 @@ export class OrderingData implements IOrderingData {
 
     if(details.address != '' || isEmptyCheck)
       {
-        await this.#validator.checkNonEmptyString(details.address)
+        await this._validator.checkNonEmptyString(details.address)
         .then(x => {
           if(x) {
             this.#orderingDetails.address = details.address;
           } else {
             error.field = ValidationErrorFields.Address;
-            this.#events.emit(OrderingDataEvents.ValidationError, error)
+            this._events.emit(OrderingDataEvents.ValidationError, error)
           }
         })
         .catch(x => {
@@ -53,13 +53,13 @@ export class OrderingData implements IOrderingData {
     let error: TErroredField = {field: ''};
 
     if(details.email != '' || isEmptyCheck) {
-      await this.#validator.checkEmail(details.email)
+      await this._validator.checkEmail(details.email)
         .then((x) => {
           if(x){
             this.#clientDetails.email = details.email;
           } else {
             error.field = ValidationErrorFields.Email;
-            this.#events.emit(OrderingDataEvents.ValidationError, error);
+            this._events.emit(OrderingDataEvents.ValidationError, error);
           }
         })
         .catch(x => {
@@ -68,13 +68,13 @@ export class OrderingData implements IOrderingData {
     }
 
     if(details.phone != '' || isEmptyCheck) {
-      await this.#validator.checkPhone(details.phone)
+      await this._validator.checkPhone(details.phone)
       .then((x) => {
         if(x){
           this.#clientDetails.phone = details.phone;
         } else {
           error.field = ValidationErrorFields.Phone;
-          this.#events.emit(OrderingDataEvents.ValidationError, error)
+          this._events.emit(OrderingDataEvents.ValidationError, error)
         }
       })
       .catch(x => {
@@ -90,7 +90,7 @@ export class OrderingData implements IOrderingData {
       paymentType: this.#orderingDetails.paymentType,
       address: this.#orderingDetails.address,
       total: this.getTotal(),
-      items: this.#basket.map(x => x.id)
+      items: this._basket.map(x => x.id)
     };
   }
 
@@ -101,33 +101,40 @@ export class OrderingData implements IOrderingData {
     throw new Error("Method not implemented.");
   }
   clear(): void {
-    this.#basket = [];
+    this._basket = [];
     this.#clientDetails = {email: '', phone: ''};
     this.#orderingDetails = {paymentType: 'online', address: ''};
-
   }
 
-  addProduct(product: IProduct): void {
-    this.#basket.push(product);
-    this.#events.emit(OrderingDataEvents.ProductAdded, product);
-    this.#events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
+  addProduct(product: IProduct): boolean {
+    this._basket.push(product);
+    product.isInTheBasket = true;
+    this._events.emit(OrderingDataEvents.ProductAdded, product);
+    this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
+    return true;
   }
 
-  deleteProduct(id: string){
-    const index = this.#basket.findIndex(p => p.id === id);
+  deleteProduct(product: IProduct): boolean {
+    const index = this._basket.findIndex(p => p.id === product.id);
     if (index !== -1) {
-      const deletedProduct = this.#basket.splice(index, 1)[0];
-      this.#events.emit(OrderingDataEvents.ProductDeleted, deletedProduct);
-      this.#events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
+      this._basket.splice(index, 1)[0];
+      product.isInTheBasket = false;
+      this._events.emit(OrderingDataEvents.ProductDeleted, product);
+      this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
+      return true;
     }
+    return false;
   }
 
   getTotal(): number{
-    return this.#basket.reduce((sum, p) => sum + p.price, 0)
+    return this._basket.reduce((sum, p) => sum + p.price, 0);
   }
 
   private writeException(error: any) {
     console.error(error);
   }
 
+  get basket() {
+    return this._basket;
+  }
 }

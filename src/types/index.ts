@@ -8,6 +8,11 @@ export type TProductCategory =
 	| 'дополнительное'
 	| 'другое';
 
+// Функция для проверки, принадлежит ли строка перечислению TemplateId
+export function isTemplateId(id: string): id is TemplateIds {
+	return Object.values(TemplateIds).includes(id as TemplateIds);
+}
+
 export interface IProduct {
 	id: string;
 	title: string;
@@ -15,6 +20,7 @@ export interface IProduct {
 	image: string;
 	category: TProductCategory;
 	price: number;
+	isInTheBasket: boolean;
 }
 
 export function checkIProduct(obj: object): boolean {
@@ -53,11 +59,13 @@ export interface IProductsData {
 }
 
 export interface IOrderingData {
+	basket: IProduct[];
 	setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void>;
 	setClientDetails(details: TClientDetails, isEmptyCheck: boolean): Promise<void>;
-	addProduct(productId: IProduct): void;
-	deleteProduct(productId: string): void;
+	addProduct(product: IProduct): boolean;
+	deleteProduct(product: IProduct): boolean;
 	getOrdering(): IOrdering;
+	getTotal(): number;
 	toOrder(): boolean;
 	checkOrdering(): boolean;
 	clear(): void;
@@ -85,6 +93,12 @@ export interface ICatalog {
 	render(data?: Partial<ICatalog>): HTMLElement
 }
 
+export interface IBasket {
+	basket: HTMLElement[];
+	totalCost: number;
+	render(data?: Partial<IBasket>): HTMLElement
+}
+
 // ----------Products ModelEvents ----------
 export enum ProductsDataEvents {
 	CatalogChanged = 'products:changed',
@@ -104,8 +118,34 @@ export enum OrderingDataEvents {
 export enum ProductItemEvents {
 	ProductSelected = 'product:selected',
 	BuyProduct = 'product:buy',
-	RemoveProduct = 'product:remove',
+	RemoveProduct = 'product:remove'
 }
+
+export enum OrderingViewEvents {
+	OrderingSubmitted = 'order:submitted',
+	OpenBasket = 'basket:openBasket',
+	BasketAccepted = 'basket:accepted',
+
+	AskForPayment = 'order:askForPayment',
+	AslForUserDetails = 'order:askForUserDetails',
+	AskForSuccess = 'order:askForSuccess',
+}
+
+export enum ModalEvents {
+	Opened = 'modal:opened',
+	Closed = 'modal:closed'
+}
+
+export enum TemplateIds {
+  Success = 'success',
+  CardCatalog = 'card-catalog',
+  CardPreview = 'card-preview',
+  CardBasket = 'card-basket',
+  Basket = 'basket',
+  Order = 'order',
+  Contacts = 'contacts'
+}
+
 
 // --------- ValidationErrorFields ----------
 export type TErroredField = {

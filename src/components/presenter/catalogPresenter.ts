@@ -1,10 +1,16 @@
-import { IProductsData, ICatalog, ProductsDataEvents, ProductItemEvents } from '../../types';
+import { IProductsData, ICatalog, ProductsDataEvents, ProductItemEvents, IProduct, OrderingDataEvents } from '../../types';
 import { IEvents } from '../base/events';
 import * as events from 'node:events';
-import { ProductView } from '../view/productView';
+import { ProductView, ProductViewType } from '../view/productView';
 import { cloneTemplate } from '../../utils/utils';
 import { CatalogView } from '../view/catalogView';
 import { ModalManagementService } from '../../utils/modalManagementService';
+import { Console } from 'node:console';
+import { ProductModel } from '../dataClasses/productModel';
+import { string } from 'yup';
+import { isModel } from '../base/Model';
+import { ProductPreviewView } from '../view/productPreviewView';
+import { ProductCatalogView } from '../view/productCatalogView';
 
 export class CatalogPresenter {
 	private _events: IEvents;
@@ -14,6 +20,8 @@ export class CatalogPresenter {
 	private _catalogItemTemplate: HTMLTemplateElement;
 	private _catalogContainer: HTMLElement;
 	private _productCardTemplate: HTMLTemplateElement
+
+	private _selectedProduct: HTMLElement = null;
 
 	constructor(events: IEvents,
 							modalService: ModalManagementService,
@@ -37,7 +45,7 @@ export class CatalogPresenter {
 			let renderedProducts: HTMLElement[];
 			if (Array.isArray(products)) {
 				renderedProducts = products.map(p => {
-					return new ProductView(cloneTemplate(this._catalogItemTemplate), this._events).render(p);
+					return new ProductCatalogView(cloneTemplate(this._catalogItemTemplate), this._events).render(p);
 				});
 			}
 			this._catalogView.render( { catalog:renderedProducts } );
@@ -45,13 +53,7 @@ export class CatalogPresenter {
 	}
 
 	private subscribeToViewEvents(): void {
-		this._events.on(ProductItemEvents.ProductSelected, pr => {
-			if (typeof(pr) === typeof(ProductView)) {
-				const productData = this._productsData.getProduct((pr as ProductView).id);
-				const view = new ProductView(cloneTemplate(this._productCardTemplate), this._events).render(productData);
 
-			}
-		})
 		return;
 	}
 }

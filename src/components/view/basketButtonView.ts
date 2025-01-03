@@ -1,4 +1,4 @@
-import { IOrdering, IOrderingData } from "../../types";
+import { IOrdering, IOrderingData, OrderingViewEvents } from "../../types";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
@@ -15,6 +15,10 @@ export class BasketButtonView extends Component<IOrdering> {
 
         this._itemsCounter = container.querySelector('.header__basket-counter');
         this._openButton = this.container.querySelector('.header__basket');
+
+        this._openButton.addEventListener('click', () => {
+            this._events.emit(OrderingViewEvents.OpenBasket);
+        });
     }
 
     set itemsCount(count: number) {

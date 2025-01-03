@@ -1,5 +1,6 @@
 import { IProduct, IProductsData, ProductsDataEvents, } from "../../types";
 import { IEvents } from "../base/events";
+import { Model } from "../base/Model";
 
 export class ProductsData implements IProductsData {
   readonly #events: IEvents;
