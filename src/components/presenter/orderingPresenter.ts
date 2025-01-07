@@ -1,15 +1,8 @@
-import { IOrdering, IOrderingData, IProduct, IProductsData, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, TPaymentType } from '../../types';
+import { IOrdering, IOrderingData, IProduct, IProductsData, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, TClientDetails, TOrderDetails, TPaymentType } from '../../types';
 import { IEvents } from "../base/events";
 import { BasketButtonView } from '../view/basketButtonView';
-import { string } from 'yup';
 import { ModalManagementService } from '../../utils/modalManagementService';
-import * as events from 'node:events';
-import { ProductView, ProductViewType } from '../view/productView';
-import { ProductModel } from '../dataClasses/productModel';
-import { isModel, Model } from '../base/Model';
-import { OrderingData } from '../dataClasses/orderingData';
-import { BasketView } from '../view/basketView';
-import { cloneTemplate } from '../../utils/utils';
+import { isModel } from '../base/Model';
 
 export class OrderingPresenter{
   private _ordering: IOrdering;
@@ -25,13 +18,11 @@ export class OrderingPresenter{
 
   constructor(events: IEvents,
               modalService: ModalManagementService,
-              //ordering: IOrdering,
               orderingData: IOrderingData,
               basketButtonView: BasketButtonView,
               productsData: IProductsData,
               basketTemplate: HTMLTemplateElement,
               productBasketTemplate: HTMLTemplateElement) {
-    //this._ordering = ordering;
     this._orderingData = orderingData;
     this._events = events;
     this._modalService = modalService;
@@ -45,7 +36,7 @@ export class OrderingPresenter{
       address: string;
       email: string;
       items: string[];
-      paymentType: TPaymentType;
+      payment: TPaymentType;
       phone: string;
       total: number;
     }
@@ -55,13 +46,12 @@ export class OrderingPresenter{
   }
 
   private subscribeToDataEvents() {
-    this._events.on(OrderingDataEvents.ProductAdded, x => {
-      console.log(x);
+    this._events.on(OrderingDataEvents.BasketUpdated, x => {
       console.log(this._ordering);
-      this._basketButtonView.itemsCount = this._orderingData.getOrdering().items.length;
+      this._basketButtonView.itemsCount = this._orderingData.basket.length;
     });
-    this._events.on(OrderingDataEvents.ProductDeleted, x => {
-      this._basketButtonView.itemsCount = this._orderingData.getOrdering().items.length;
+    this._events.on(OrderingDataEvents.TotalUpdated, x => {
+      this._basketButtonView.itemsCount = this._orderingData.basket.length;
     });
   }
 
@@ -82,11 +72,12 @@ export class OrderingPresenter{
       }
 		});
 
-    this._events.on(OrderingViewEvents.BasketAccepted, () => {
+    this._events.on(OrderingViewEvents.PaymentFormChanged, d => {
+      this._orderingData.setOrderDetails(d as TOrderDetails, true);
+    });
 
-      }
-    );
-
-
+    this._events.on(OrderingViewEvents.ClientFormChanged, c => {
+      this._orderingData.setClientDetails(c as TClientDetails, true);
+    });
   }
 }

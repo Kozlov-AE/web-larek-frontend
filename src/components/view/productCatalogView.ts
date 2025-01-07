@@ -6,7 +6,6 @@ export class ProductCatalogView extends ProductView {
   constructor(container: HTMLElement, events: IEvents) {
     super(container, events);
       this.container.addEventListener('click', () => {
-        console.log('Кликнул по кнопке продукта');
         this._events.emit(ProductItemEvents.ProductSelected, this);
       });
     }

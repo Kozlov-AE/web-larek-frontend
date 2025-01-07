@@ -1,9 +1,15 @@
 import * as yup from 'yup';
 
 export class ValidationService{
-  private emailSchema = yup.string().email('Некорректный адрес электронной почты');
-  private phoneSchema = yup.string().matches(/^\+?\d{1,3}[-.\s]?\(?\d{1,3}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, 'Некорректный номер телефона');
-  private nonEmptyStringSchema = yup.string().required('Обязательное поле').test('non-empty', 'Строка не должна быть пустой', value => value.trim() !== '');
+  private emailSchema = yup.string()
+                        .required('Обязательное поле')
+                        .email('Некорректный адрес электронной почты');
+  private phoneSchema = yup.string()
+                        .matches(/^(\+?\d{1,3}[- ]?)?\(?\d{3}\)?[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/, 'Некорректный номер телефона');
+  private nonEmptyStringSchema = yup.string()
+                                  .required('Обязательное поле')
+                                  .test('non-empty', 'Строка не должна быть пустой', value => value.trim() !== '');
+
 
   async checkEmail(value: string): Promise<boolean> {
     try {
@@ -11,7 +17,7 @@ export class ValidationService{
       return true;
     }
     catch (error){
-      console.error(error);
+      console.error('Email validation: ' + error);
       return false;
     }
   }
@@ -22,7 +28,7 @@ export class ValidationService{
       return true;
     }
     catch (error) {
-      console.error(error);
+      console.error('Phone validation: ' + error);
       return false;
     }
   }
@@ -32,6 +38,7 @@ export class ValidationService{
       await this.nonEmptyStringSchema.validate(value);
       return true;
     } catch (error) {
+      console.error('Not empty validation: ' + error);
       return false;
     }
   }

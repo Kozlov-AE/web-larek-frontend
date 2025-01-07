@@ -1,13 +1,14 @@
 import { IEvents } from '../components/base/events';
 import { BasketView } from '../components/view/basketView';
+import { ClientFormView } from '../components/view/clientFormView';
+import { ErrorView } from '../components/view/errorView';
 import { ModalView } from '../components/view/modalView';
+import { PaymentFormView } from '../components/view/paymentFormView';
 import { ProductBasketView } from '../components/view/productBasketView';
 import { ProductPreviewView } from '../components/view/productPreviewView';
-import { ProductView, ProductViewType } from '../components/view/productView';
-import { IOrderingData, IProduct, IProductsData, isTemplateId, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, TemplateIds } from '../types';
+import { SuccessView } from '../components/view/successView';
+import { FormValidationEvents, IOrderingData, IProduct, IProductsData, isTemplateId, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, SendOrderingErrorResult, SendOrderingSuccessResult, TemplateIds, TErroredField } from '../types';
 import { cloneTemplate } from './utils';
-
-
 
 export class ModalManagementService {
 	private readonly _events: IEvents;
@@ -20,6 +21,13 @@ export class ModalManagementService {
 
 	private _templates: Map<string, HTMLTemplateElement> = new Map();
 
+	private _productPreview: ProductPreviewView;
+	private _basketBody: BasketView;
+	private _paymentForm: PaymentFormView;
+	private _clientForm: ClientFormView;
+	private _successBody: SuccessView;
+	private _errorBody: ErrorView;
+
 	constructor(modal: ModalView, events: IEvents, productsData: IProductsData, orderingData: IOrderingData, templates: NodeListOf<HTMLTemplateElement>) {
 		this._modal = modal;
 		this._events = events;
@@ -27,6 +35,15 @@ export class ModalManagementService {
 		this._orderingData = orderingData;
 
 		this.setTemplates(templates);
+
+		this._productPreview = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, false);
+		this._basketBody = new BasketView(cloneTemplate(this.getTemplate(TemplateIds.Basket)), this._events);
+		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events);
+		this._clientForm = new ClientFormView(cloneTemplate(this.getTemplate(TemplateIds.Contacts)), this._events);
+		this._successBody = new SuccessView(cloneTemplate(this.getTemplate(TemplateIds.Success)), this._events);
+		this._errorBody = new ErrorView(cloneTemplate(this.getTemplate(TemplateIds.Error)), this._events);
+
+
 		this.subscribeToEvents();
 	}
 
@@ -49,8 +66,10 @@ export class ModalManagementService {
 
 	private subscribeToEvents() {
 		this._events.on(ModalEvents.Closed, this.closeModal.bind(this));
+
 		this._events.on(ProductItemEvents.ProductSelected, this.showProductPreview.bind(this));
-		this._events.on(OrderingDataEvents.ProductAdded, pr => {
+
+		this._events.on(OrderingDataEvents.BasketUpdated, pr => {
 			if (this._openedModal === TemplateIds.CardPreview) {
 				this.showProductPreview(pr as IProduct);
 			}
@@ -58,15 +77,24 @@ export class ModalManagementService {
 				this.showBasket();
 			}
 		});
-		this._events.on(OrderingDataEvents.ProductDeleted, pr => {
-			if (this._openedModal === TemplateIds.CardPreview) {
-				this.showProductPreview(pr as IProduct);
-			}
-			if (this._openedModal === TemplateIds.Basket) {
-				this.showBasket();
-			}
-		});
+
 		this._events.on(OrderingViewEvents.OpenBasket, this.showBasket.bind(this));
+
+		this._events.on(OrderingViewEvents.BasketAccepted, this.showPaymentForm.bind(this));
+
+		this._events.on(FormValidationEvents.ValidationError, this.showError.bind(this));
+
+		this._events.on(FormValidationEvents.ValidationSuccess, this.formValidationSuccess.bind(this));
+
+		this._events.on(OrderingViewEvents.PaymentFormAccepted, this.showContactsForm.bind(this));
+
+		this._events.on(OrderingDataEvents.SuccessSent, this.showSentSuccess.bind(this));
+
+		this._events.on(OrderingDataEvents.ErrorSent, this.showSentError.bind(this));
+
+		this._events.on(ModalEvents.AskToClose, () => {
+			this._modal.hide();
+		});
 	}
 
 	private showModal(content: HTMLElement, templateId: TemplateIds) {
@@ -85,6 +113,9 @@ export class ModalManagementService {
 		if (product) {
 			const productData = this._productsData.getProduct(product.id);
 			const prView = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, productData.isInTheBasket);
+			if (!productData.price) {
+				prView.StopBuy();
+			}
 			const view = prView.render(productData);
 			if (!this._openedModal) {
 				this.showModal(view, TemplateIds.CardPreview);
@@ -103,18 +134,68 @@ export class ModalManagementService {
 	}
 
 	private showBasket() {
-		const view = new BasketView(cloneTemplate(this.getTemplate(TemplateIds.Basket)), this._events);
 		const items = this._orderingData.basket.map(p => {
 			return new ProductBasketView(cloneTemplate(this.getTemplate(TemplateIds.CardBasket)), this._events).render(p);
 		});
-		const modalBody = view.render({
+		const modalBody = this._basketBody.render({
 			basket: items,
 			totalCost: this._orderingData.getTotal()
 		});
-		if (this._openedModal === TemplateIds.Basket) {
-			this._modal.setContent(modalBody);
-		} else if (!this._openedModal) {
+		if (!this._openedModal
+			|| this._openedModal === TemplateIds.Basket
+			|| this._openedModal === TemplateIds.Error) {
 			this.showModal(modalBody, TemplateIds.Basket);
+		}
+	}
+
+	private showPaymentForm(errors: TErroredField[] | null = null) {
+		const orderDetails = this._orderingData.orderDetails;
+
+		let modalBody = this._paymentForm.render(orderDetails);
+
+		if (this._openedModal === TemplateIds.Basket || this._openedModal === TemplateIds.Order) {
+			this.showModal(modalBody, TemplateIds.Order);
+		}
+	}
+
+	private showContactsForm(errors: TErroredField[] | null = null) {
+		const clientDetails = this._orderingData.clientDetails;
+		const modalBody = this._clientForm.render(clientDetails);
+
+		if (this._openedModal === TemplateIds.Order || this._openedModal === TemplateIds.Contacts) {
+			this.showModal(modalBody, TemplateIds.Contacts);
+		}
+	}
+
+	private showSentSuccess(data: SendOrderingSuccessResult) {
+		this.showModal(this._successBody.render(data), TemplateIds.Success);
+		this._clientForm.reset();
+		this._paymentForm.reset();
+	}
+
+	private showSentError(data: SendOrderingErrorResult) {
+		this.showModal(this._errorBody.render(data), TemplateIds.Error);
+	}
+
+	private showError(errors: TErroredField[]) {
+		switch (this._openedModal) {
+			case TemplateIds.Order:
+				this._paymentForm.setErrors(errors);
+			case TemplateIds.Contacts:
+				this._clientForm.setErrors(errors);
+			default:
+				break;
+		}
+	}
+
+	private formValidationSuccess() {
+		switch (this._openedModal) {
+			case TemplateIds.Order:
+				this._paymentForm.resetErrors();
+			case TemplateIds.Contacts:
+				this._clientForm.resetErrors();
+			default:
+				break;
 		}
 	}
 }

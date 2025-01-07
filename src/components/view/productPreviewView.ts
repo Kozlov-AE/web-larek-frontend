@@ -1,4 +1,4 @@
-import { object } from "yup";
+import { number, object } from "yup";
 import { ProductItemEvents } from "../../types";
 import { IEvents } from "../base/events";
 import { ProductView } from "./productView";

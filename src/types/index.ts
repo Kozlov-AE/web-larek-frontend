@@ -1,5 +1,5 @@
 //----------------------------- Типы, отвечающие за хранение данных и работу с Api ------------------------------
-export type TPaymentType = 'online' | 'cash';
+export type TPaymentType = 'card' | 'cash';
 
 export type TProductCategory =
 	| 'софт-скил'
@@ -35,7 +35,7 @@ export function checkIProduct(obj: object): boolean {
 export interface IOrdering {
 	email: string;
 	phone: string;
-	paymentType: TPaymentType;
+	payment: TPaymentType;
 	address: string;
 	total: number;
 	items: string[];
@@ -44,7 +44,7 @@ export interface IOrdering {
 export function checkIOrdering(obj: object): boolean {
 	return 'email' in obj
 			&& 'phone' in obj
-			&& 'paymentType' in obj
+			&& 'payment' in obj
 			&& 'address' in obj
 			&& 'total' in obj
 			&& 'items' in obj;
@@ -61,31 +61,29 @@ export interface IProductsData {
 export interface IOrderingData {
 	basket: IProduct[];
 	setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void>;
+	orderDetails: TOrderDetails;
 	setClientDetails(details: TClientDetails, isEmptyCheck: boolean): Promise<void>;
+	clientDetails: TClientDetails;
 	addProduct(product: IProduct): boolean;
 	deleteProduct(product: IProduct): boolean;
 	getOrdering(): IOrdering;
 	getTotal(): number;
-	toOrder(): boolean;
-	checkOrdering(): boolean;
+	checkOrdering(): Promise<boolean>;
 	clear(): void;
 }
 
-export abstract class SendOrderingResult {
-}
-
-export class SendOrderingSuccessResult extends SendOrderingResult {
+export type SendOrderingSuccessResult = {
 	id: string;
 	total: number;
 }
 
-export class SendOrderingErrorResult extends SendOrderingResult {
+export type SendOrderingErrorResult = {
 	error: string;
 }
 
 // ---------- UI types ----------
 export type TProductCardData = Pick<IProduct, 'id' | 'title' | 'image' | 'description' | 'category' | 'price'>;
-export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
+export type TOrderDetails = Pick<IOrdering, 'payment' | 'address'>;
 export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 
 export interface ICatalog {
@@ -108,10 +106,11 @@ export enum ProductsDataEvents {
 
 // ----------Ordering ModelEvents ----------
 export enum OrderingDataEvents {
-	ProductAdded = 'basket:added',
-	ProductDeleted = 'basket:deleted',
+	BasketUpdated = 'basket:updated',
+	TotalUpdated = 'basket:total',
 	ValidationError = 'order:validationError',
-	TotalUpdated = 'basket:total'
+	SuccessSent = 'order:successSent',
+	ErrorSent = 'order:errorSent',
 }
 
 // ----------View Events ----------
@@ -125,19 +124,21 @@ export enum OrderingViewEvents {
 	OrderingSubmitted = 'order:submitted',
 	OpenBasket = 'basket:openBasket',
 	BasketAccepted = 'basket:accepted',
-
-	AskForPayment = 'order:askForPayment',
-	AslForUserDetails = 'order:askForUserDetails',
-	AskForSuccess = 'order:askForSuccess',
+	PaymentFormAccepted = 'order:paymentAccepted',
+	PaymentFormChanged = 'order:paymentFormChanged',
+	ClientFormAccepted = 'order:clientFormAccepted',
+	ClientFormChanged = 'order:clientFormChanged',
 }
 
 export enum ModalEvents {
 	Opened = 'modal:opened',
-	Closed = 'modal:closed'
+	Closed = 'modal:closed',
+	AskToClose = 'modal:askToClose'
 }
 
 export enum TemplateIds {
   Success = 'success',
+	Error = 'error',
   CardCatalog = 'card-catalog',
   CardPreview = 'card-preview',
   CardBasket = 'card-basket',
@@ -149,7 +150,8 @@ export enum TemplateIds {
 
 // --------- ValidationErrorFields ----------
 export type TErroredField = {
-	field: string
+	field: string;
+	message: string;
 }
 
 export enum ValidationErrorFields {
@@ -157,4 +159,9 @@ export enum ValidationErrorFields {
 	Address = 'order:address',
 	Email = 'contacts:email',
 	Phone = 'contacts:phone',
+}
+
+export enum FormValidationEvents {
+	ValidationError = 'validation:error',
+	ValidationSuccess = 'validation:success'
 }

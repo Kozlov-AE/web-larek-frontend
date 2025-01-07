@@ -3,16 +3,9 @@ import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 import { CDN_URL } from '../../utils/constants';
 
-export enum ProductViewType {
-	Catalog,
-	Preview,
-	Basket
-}
-
 export abstract class ProductView extends Component<IProduct> {
 	protected _events: IEvents;
 	protected _isInTheBasket: boolean;
-	protected _viewType: ProductViewType;
 
 	protected _id: string;
 	protected _title: HTMLElement;
@@ -21,6 +14,8 @@ export abstract class ProductView extends Component<IProduct> {
 	protected _image: HTMLImageElement;
 	protected _category: HTMLElement;
 	protected _button: HTMLButtonElement;
+
+	protected _hasPrice: boolean = true;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
@@ -62,8 +57,9 @@ export abstract class ProductView extends Component<IProduct> {
 		super.setText(this._description, description);
 	}
 
-	set price(price: string) {
-		super.setText(this._price, price);
+	set price(price: string | null) {
+		const text = price === null ? 'Бесценно' : price;
+		super.setText(this._price, text);
 	}
 
 	set image(image: string) {
@@ -75,16 +71,7 @@ export abstract class ProductView extends Component<IProduct> {
 		this.container = null;
 	}
 
-	private buyDisable(){
-		switch (this._viewType){
-			case ProductViewType.Preview:
-				this._button.disabled = true;
-				break;
-			case ProductViewType.Catalog:
-				break;
-			case ProductViewType.Basket:
-				break;
-		}
-		this.render();
+	StopBuy() {
+		this._button.disabled = true;
 	}
 }

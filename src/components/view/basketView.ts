@@ -2,10 +2,7 @@ import { it } from "node:test";
 import { IBasket, IOrdering, IProduct, OrderingDataEvents, OrderingViewEvents, ProductItemEvents } from "../../types";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
-import { ProductView, ProductViewType } from "./productView";
 import { object } from "yup";
-
-
 
 export class BasketView extends Component<IBasket> {
   private _totalCost: HTMLElement;
@@ -28,6 +25,11 @@ export class BasketView extends Component<IBasket> {
 
   set basket(items: HTMLElement[]) {
     this._basket.replaceChildren(...items);
+    if (items.length === 0) {
+      this._toOrderButton.disabled = true;
+    } else {
+      this._toOrderButton.disabled = false;
+    }
   }
 
   set totalCost(cost: number) {

@@ -1,5 +1,4 @@
-import { pitch } from "mini-css-extract-plugin/types/loader";
-import { IOrdering, IOrderingData, IProduct, OrderingDataEvents, TClientDetails, TErroredField, TOrderDetails, ValidationErrorFields } from "../../types";
+import { FormValidationEvents, IOrdering, IOrderingData, IProduct, OrderingDataEvents, TClientDetails, TErroredField, TOrderDetails, ValidationErrorFields } from "../../types";
 import { ValidationService } from "../../utils/validationService";
 import { IEvents } from "../base/events";
 
@@ -7,9 +6,9 @@ export class OrderingData implements IOrderingData {
   private readonly _events: IEvents;
   private readonly _validator: ValidationService;
   private _basket: IProduct[] = [];
-  #orderingDetails: TOrderDetails = {paymentType: 'online', address: ''};
-  #clientDetails: TClientDetails = {email: '', phone: ''};
-  #ordering: IOrdering;
+  private _orderingDetails: TOrderDetails = {payment: 'cash', address: ''};
+  private _clientDetails: TClientDetails = {email: '', phone: ''};
+  private _ordering: IOrdering;
 
   constructor(events: IEvents, validationService: ValidationService) {
     this._events = events;
@@ -17,99 +16,144 @@ export class OrderingData implements IOrderingData {
   }
 
   async setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean = false): Promise<void> {
-    let error: TErroredField = {field: ''};
+    this._orderingDetails.payment = details.payment;
+    this._orderingDetails.address = details.address;
+    const errors: TErroredField[] = [];
+    const prs: Promise<void>[] = [];
 
-      await this._validator.checkNonEmptyString(details.paymentType)
-      .then(x => {
-        if(x){
-          this.#orderingDetails.paymentType = details.paymentType;
-        } else{
-          error.field = ValidationErrorFields.PaymentType;
-          this._events.emit(OrderingDataEvents.ValidationError, error);
-        }
-      })
-      .catch(x => {
-        this.writeException(x);
-      });
+    const pr1 = this._validator.checkNonEmptyString(details.payment)
+    .then(x => {
+      if(!x){
+        errors.push({field: ValidationErrorFields.PaymentType, message: 'Не верный способ оплаты!'});
+      }
+    })
+    .catch(x => {
+      this.writeException(x);
+    });
+    prs.push(pr1);
 
     if(details.address != '' || isEmptyCheck)
       {
-        await this._validator.checkNonEmptyString(details.address)
+        const pr2 = this._validator.checkNonEmptyString(details.address)
         .then(x => {
-          if(x) {
-            this.#orderingDetails.address = details.address;
-          } else {
-            error.field = ValidationErrorFields.Address;
-            this._events.emit(OrderingDataEvents.ValidationError, error)
+          if(!x) {
+            errors.push({field: ValidationErrorFields.Address, message: 'Адрес не может быть пустым!'});
           }
         })
         .catch(x => {
           this.writeException(x);
         });
+        prs.push(pr2);
       }
+
+      Promise.all(prs).then(() => {
+        if(errors.length > 0) {
+          this._events.emit(FormValidationEvents.ValidationError, errors);
+        } else {
+          this._events.emit(FormValidationEvents.ValidationSuccess, this._orderingDetails);
+        }
+      });
+  }
+
+  get orderDetails () {
+    return this._orderingDetails;
   }
 
   async setClientDetails(details: TClientDetails, isEmptyCheck: boolean = false): Promise<void> {
-    let error: TErroredField = {field: ''};
+    this._clientDetails.email = details.email;
+    this._clientDetails.phone = details.phone;
+    const errors: TErroredField[] = [];
+    const prs: Promise<void>[] = [];
 
-    if(details.email != '' || isEmptyCheck) {
-      await this._validator.checkEmail(details.email)
+    if(details.email !== '' || isEmptyCheck) {
+      const pr1 = this._validator.checkEmail(details.email)
         .then((x) => {
-          if(x){
-            this.#clientDetails.email = details.email;
-          } else {
-            error.field = ValidationErrorFields.Email;
-            this._events.emit(OrderingDataEvents.ValidationError, error);
+          if(!x){
+            errors.push({field: ValidationErrorFields.Email, message: 'Не верный email!'});
           }
         })
         .catch(x => {
           this.writeException(x);
       });
+      prs.push(pr1);
     }
 
-    if(details.phone != '' || isEmptyCheck) {
-      await this._validator.checkPhone(details.phone)
+    if(details.phone !== '' || isEmptyCheck) {
+      const pr2 = this._validator.checkPhone(details.phone)
       .then((x) => {
-        if(x){
-          this.#clientDetails.phone = details.phone;
-        } else {
-          error.field = ValidationErrorFields.Phone;
-          this._events.emit(OrderingDataEvents.ValidationError, error)
+        if(!x){
+          errors.push({field: ValidationErrorFields.Phone, message: 'Не верный номер телефона!'});
         }
       })
       .catch(x => {
         this.writeException(x);
       });
+      prs.push(pr2);
     }
+
+    Promise.all(prs).then(() => {
+      if (errors.length > 0) {
+        this._events.emit(FormValidationEvents.ValidationError, errors);
+      } else {
+        this._events.emit(FormValidationEvents.ValidationSuccess, this._clientDetails);
+      }
+    });
+    // this._validator.checkClientDetails(details).then(x => {
+    //   if(x.result) {
+    //     this._events.emit(FormValidationEvents.ValidationSuccess, this._clientDetails);
+    //   } else {
+    //     this._events.emit(FormValidationEvents.ValidationError, [x.error]);
+    //   }
+    // })
+  }
+
+  get clientDetails() {
+    return this._clientDetails;
   }
 
   getOrdering(): IOrdering {
     return {
-      email: this.#clientDetails.email,
-      phone: this.#clientDetails.phone,
-      paymentType: this.#orderingDetails.paymentType,
-      address: this.#orderingDetails.address,
+      email: this._clientDetails.email,
+      phone: this._clientDetails.phone,
+      payment: this._orderingDetails.payment,
+      address: this._orderingDetails.address,
       total: this.getTotal(),
       items: this._basket.map(x => x.id)
     };
   }
 
-  toOrder(): boolean {
-    throw new Error("Method not implemented.");
+  async checkOrdering(): Promise<boolean> {
+    const prs = [];
+    const ordering = this.getOrdering();
+    prs.push(this._validator.checkEmail(ordering.email));
+    prs.push(this._validator.checkPhone(ordering.phone));
+    prs.push(this._validator.checkNonEmptyString(ordering.payment));
+    prs.push(this._validator.checkNonEmptyString(ordering.address));
+    if(ordering.items.length > 0 && ordering.total > 0) {
+      await Promise.all(prs).then(x => {
+        if(x.every(c => c)) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
+    }
+    return false;
   }
-  checkOrdering(): boolean {
-    throw new Error("Method not implemented.");
-  }
+
   clear(): void {
+    this._basket.forEach(x => x.isInTheBasket = false);
     this._basket = [];
-    this.#clientDetails = {email: '', phone: ''};
-    this.#orderingDetails = {paymentType: 'online', address: ''};
+    this._clientDetails = {email: '', phone: ''};
+    this._orderingDetails = {payment: 'cash', address: ''};
+    this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
   }
 
   addProduct(product: IProduct): boolean {
     this._basket.push(product);
     product.isInTheBasket = true;
-    this._events.emit(OrderingDataEvents.ProductAdded, product);
+    this._events.emit(OrderingDataEvents.BasketUpdated, product);
     this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
     return true;
   }
@@ -119,7 +163,7 @@ export class OrderingData implements IOrderingData {
     if (index !== -1) {
       this._basket.splice(index, 1)[0];
       product.isInTheBasket = false;
-      this._events.emit(OrderingDataEvents.ProductDeleted, product);
+      this._events.emit(OrderingDataEvents.BasketUpdated, product);
       this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
       return true;
     }

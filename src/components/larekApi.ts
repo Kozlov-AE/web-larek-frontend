@@ -2,12 +2,8 @@ import {
   checkIProduct,
   IOrdering,
   IProduct,
-  SendOrderingErrorResult,
-  SendOrderingResult,
-  SendOrderingSuccessResult,
 } from '../types';
 import { Api } from "./base/api";
-import { boolean } from 'yup';
 
 export class LarekApi extends Api {
   constructor(baseUrl: string) {
@@ -23,19 +19,16 @@ export class LarekApi extends Api {
 		return [];
   }
 
-  async postOrder(ordering: IOrdering): Promise<SendOrderingResult>{
-    let result: SendOrderingResult;
-    super.post('/order', ordering)
-      .then(response => {
-        if ('error' in response) {
-          result = response as SendOrderingResult;
-        } else {
-          result = response as SendOrderingSuccessResult;
-        }
-      })
-      .catch(error => {
-        console.error('Send ordering error: ' + error);
-      })
+  async postOrder(ordering: IOrdering): Promise<object> {
+    let result;
+    await super.post('/order', ordering)
+    .then(response => {
+      result = response;
+    })
+    .catch(error => {
+      console.error('Send ordering error: ' + error);
+      result = {error: error}}
+    );
     return result;
   }
 }

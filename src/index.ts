@@ -13,6 +13,7 @@ import { ModalManagementService } from './utils/modalManagementService';
 import { ModalView } from './components/view/modalView';
 import { ProductModel } from './components/dataClasses/productModel';
 import { BasketView } from './components/view/basketView';
+import { OrderingViewEvents, SendOrderingSuccessResult, SendOrderingErrorResult, ModalEvents, OrderingDataEvents } from './types';
 
 // Инициализация базовых классов и сервисов
 const events = new EventEmitter();
@@ -35,10 +36,33 @@ document.addEventListener('keydown', event => {
   }
 });
 
+events.on(OrderingViewEvents.ClientFormAccepted, () => {
+  const IsValid = orderingData.checkOrdering();
+  if (IsValid){
+    api.postOrder(orderingData.getOrdering())
+    .then(x => {
+      if ('id' in x && 'total' in x) {
+        events.emit(OrderingDataEvents.SuccessSent, {id: x.id, total: x.total});
+        orderingData.clear();
+      } else if ('error' in x) {
+        events.emit(OrderingDataEvents.ErrorSent, {error: x.error});
+      }
+    })
+    .catch(err => {
+      console.error('Order result: ' + err);
+      events.emit(OrderingDataEvents.ErrorSent, {error: err});
+    });
+  }
+  else {
+    console.log('Ordering data is not valid');
+    events.emit(OrderingDataEvents.ErrorSent, {error: 'Ordering data is not valid'});
+  }
+
+});
 // Инициализация презентера
 const modalService = new ModalManagementService(modalView, events, productsData, orderingData, document.querySelectorAll('template'));
 const catalogPresenter: CatalogPresenter
-  = new CatalogPresenter(events, modalService, catalogView, productsData, document.querySelector('#card-catalog'), document.querySelector('#card-preview'));
+  = new CatalogPresenter(events, catalogView, document.querySelector('#card-catalog'));
 const orderingPresenter: OrderingPresenter
   = new OrderingPresenter(events, modalService, orderingData, basketButtonView, productsData, document.querySelector('#basket'), document.querySelector('#card-basket'));
 
