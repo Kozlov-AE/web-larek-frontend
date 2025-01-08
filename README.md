@@ -44,7 +44,7 @@ yarn build
 Расположены в файле [src\types\index.ts](src\types\index.ts)
 ### Тип TProductCategory
 Список категорий товаров. При добавлении новой категории, требуется добавить ее сначала сюда.
-```
+```typescript
 export type TProductCategory =
 	| 'софт-скил'
 	| 'кнопка'
@@ -54,12 +54,12 @@ export type TProductCategory =
 ```
 ### Тип TPaymentType
 Список способов оплаты.
-```
+```typescript
 export type TPaymentType = 'online ' | 'cash';
 ```
 ### Перечисление TemplateIds
 Служит для хранения статуса открытого модального окна.
-```
+```typescript
 export enum TemplateIds {
 	Success = 'success',
 	Error = 'error',
@@ -74,7 +74,7 @@ export enum TemplateIds {
 
 ### Интерфейс IOrdering
 Описание данных заказа. Является основой для отображения форм заказа
-```
+```typescript
 export interface IOrdering {
 	email: string;
 	phone: string;
@@ -87,13 +87,13 @@ export interface IOrdering {
 
 ### Тип TOrderDetails
 Тип, хранящий данные, выводимые в форме заказа, для уточнения адреса и способа оплаты
-```
+```typescript
 export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
 ```
 
 ### Тип TClientDetails
 Тип, хранящий данные, необходимые для заполнения информации о клиенте.
-```
+```typescript
 export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 ```
 
@@ -113,7 +113,7 @@ export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 - orderDetails: TOrderDetails - получить детали оплаты и адрес
 - clientDetails: TClientDetails - получить информацию о клиенте
 
-```
+```typescript
 export interface IOrderingData {
 	basket: IProduct[];
 	setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void>;
@@ -131,7 +131,7 @@ export interface IOrderingData {
 
 ### Интерфейс IProduct
 Описание товара, продаваемого в магазине. Является основой для отображения товаров в каталоге и корзине
-```
+```typescript
 export interface IProduct {
 	id: string;
 	title: string;
@@ -149,7 +149,7 @@ export interface IProduct {
 - addProducts(products: IProduct[]): void - Добавление коллекции товаров в память
 - getProduct(id: string): IProduct - Получить один продукт по id из памяти
 
-```
+```typescript
 interface IProductsData {
 	addProducts(products: IProduct[]): void;
 	getProduct(id: string): IProduct;
@@ -158,7 +158,7 @@ interface IProductsData {
 
 ### Тип SendOrderingSuccessResult
 Отражает ответ сервера при успешной отправке заказа
-```
+```typescript
 export type SendOrderingSuccessResult = {
 	id: string;
 	total: number;
@@ -167,7 +167,7 @@ export type SendOrderingSuccessResult = {
 
 ### Тип SendOrderingErrorResult
 Отражает ответ сервера при успешной отправке заказа
-```
+```typescript
 export type SendOrderingErrorResult = {
 	error: string;
 }
@@ -180,7 +180,7 @@ export type SendOrderingErrorResult = {
 Содержит базовую логику отправки запросов.
 
 ##### Конструктор
-```
+```typescript
 constructor(baseUrl: string, options: RequestInit = {}) {
 ```
 `baseUrl` - базовый адрес сервера.
@@ -194,7 +194,7 @@ constructor(baseUrl: string, options: RequestInit = {}) {
 #### Класс [EventEmitter](src/components/base/events.ts)
 Реализует паттерн «Наблюдатель» и позволяет подписываться на события и уведомлять подписчиков о наступлении события.
 ##### Конструктор
-```
+```typescript
 constructor()
 ```
 Ничего не принимает, служит для инициализации объекта класса
@@ -211,7 +211,7 @@ constructor()
 Абстрактный базовый класс, используется для управления отображением данных
 
 ##### Конструктор
-```
+```typescript
 protected constructor(protected readonly container: HTMLElement)
 ```
 Принимает HTML разметку для работы с ней.
@@ -228,7 +228,7 @@ protected constructor(protected readonly container: HTMLElement)
 Базовая модель, чтобы можно было отличить ее от простых объектов с данными. Работает с `EventEmmiter` и имеет метод, с помощью которого может сообщить всем подписчикам об изменении модели.
 
 ##### Конструктор
-```
+```typescript
 constructor(data: Partial<T>, protected events: IEvents)
 ```
 Принимает данные модели и `events`.
@@ -370,28 +370,3 @@ export enum FormValidationEvents {
 	ValidationSuccess = 'validation:success'
 }
 ```
-
-
-Код, описывающий взаимодействие слоя данных и слоя отображения расположен в файле `index.ts`. Этот файл не является презентером в чистом виде, но выполняет его функции в целях упрощения разработки.
-Взаимодействие осуществляется с помощью генерируемых слоями событий.
-##### События, генерируемые моделями данных
-- products:catalogChanged - изменение коллекции продуктов, отображаемых на витрине
-- products:productSelected
-- ordering:orderingChanged
-- ordering:cleaned
-- ordering:sent
-##### События, генерируемые моделями отображения
-- product:selected
-- product:added
-- product:removed
-- ordering:orderingDetailsChanged
-- ordering:clientDetailsChanged
-- ordering:productRemoved
-- ordering:orderingDetailsValidation
-- ordering:clientDetailsValidation
-- ordering:basketValidation
-- ordering:fullValidation
-- ordering:submit
-- modal:next
-- modal:opened
-- modal:closed
