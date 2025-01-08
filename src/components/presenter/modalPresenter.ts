@@ -7,8 +7,8 @@ import { PaymentFormView } from '../components/view/paymentFormView';
 import { ProductBasketView } from '../components/view/productBasketView';
 import { ProductPreviewView } from '../components/view/productPreviewView';
 import { SuccessView } from '../components/view/successView';
-import { FormValidationEvents, IOrderingData, IProduct, IProductsData, isTemplateId, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, SendOrderingErrorResult, SendOrderingSuccessResult, TemplateIds, TErroredField } from '../types';
-import { cloneTemplate } from './utils';
+import { FormValidationEvents, IOrderingData, IProduct, IProductsData, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, SendOrderingErrorResult, SendOrderingSuccessResult, TemplateIds, TErroredField } from '../types';
+import { cloneTemplate, isTemplateId } from './utils';
 
 export class ModalManagementService {
 	private readonly _events: IEvents;
@@ -148,17 +148,17 @@ export class ModalManagementService {
 		}
 	}
 
-	private showPaymentForm(errors: TErroredField[] | null = null) {
+	private showPaymentForm() {
 		const orderDetails = this._orderingData.orderDetails;
 
-		let modalBody = this._paymentForm.render(orderDetails);
+		const modalBody = this._paymentForm.render(orderDetails);
 
 		if (this._openedModal === TemplateIds.Basket || this._openedModal === TemplateIds.Order) {
 			this.showModal(modalBody, TemplateIds.Order);
 		}
 	}
 
-	private showContactsForm(errors: TErroredField[] | null = null) {
+	private showContactsForm() {
 		const clientDetails = this._orderingData.clientDetails;
 		const modalBody = this._clientForm.render(clientDetails);
 
@@ -181,8 +181,10 @@ export class ModalManagementService {
 		switch (this._openedModal) {
 			case TemplateIds.Order:
 				this._paymentForm.setErrors(errors);
+				break;
 			case TemplateIds.Contacts:
 				this._clientForm.setErrors(errors);
+				break;
 			default:
 				break;
 		}
@@ -192,8 +194,10 @@ export class ModalManagementService {
 		switch (this._openedModal) {
 			case TemplateIds.Order:
 				this._paymentForm.resetErrors();
+				break;
 			case TemplateIds.Contacts:
 				this._clientForm.resetErrors();
+				break;
 			default:
 				break;
 		}
