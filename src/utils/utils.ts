@@ -1,3 +1,5 @@
+import { TemplateIds } from "../types";
+
 export function pascalToKebab(value: string): string {
     return value.replace(/([a-z0–9])([A-Z])/g, "$1-$2").toLowerCase();
 }
@@ -8,6 +10,11 @@ export function isSelector(x: any): x is string {
 
 export function isEmpty(value: any): boolean {
     return value === null || value === undefined;
+}
+
+// Функция для проверки, принадлежит ли строка перечислению TemplateId
+export function isTemplateId(id: string): id is TemplateIds {
+	return Object.values(TemplateIds).includes(id as TemplateIds);
 }
 
 export type SelectorCollection<T> = string | NodeListOf<Element> | T[];

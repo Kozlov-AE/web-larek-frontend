@@ -5,7 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#000000" />
 	<link rel="icon" href="/favicon.ico" />
-	<link rel="manifest" href="/manifest.json" />
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -20,7 +19,7 @@
 		<header class="header">
 			<div class="header__container">
 				<a class="header__logo" href="/">
-					<img class="header__logo-image" src="<%=require('../images/logo.svg')%>" alt="Film! logo" />
+					<img class="header__logo-image" src="<%=require('../images/logo.svg')%>" alt="WebLarek logo" />
 				</a>
 				<button class="header__basket">
 					<span class="header__basket-counter">0</span>
@@ -162,6 +161,14 @@
 			<h2 class="order-success__title">Заказ оформлен</h2>
 			<p class="order-success__description">Списано 0 синапсов</p>
 			<button class="button order-success__close">За новыми покупками!</button>
+		</div>
+	</template>
+
+	<template id="error">
+		<div class="order-error">
+			<h2 class="order-error__title">Заказ не оформлен, деньги не списаны</h2>
+			<p class="order-error__description">Что то пошло не так!</p>
+			<button class="button order-error__close">Вернуться в корзину</button>
 		</div>
 	</template>
 

@@ -1,11 +1,11 @@
-import {IEvents} from "./events";
-
 /**
  * Базовый компонент
  */
 export abstract class Component<T> {
-    protected constructor(protected readonly container: HTMLElement) {
+    protected container: HTMLElement
+    protected constructor(container: HTMLElement) {
         // Учитывайте что код в конструкторе исполняется ДО всех объявлений в дочернем классе
+        this.container = container;
     }
 
     // Инструментарий для работы с DOM в дочерних компонентах
@@ -40,7 +40,7 @@ export abstract class Component<T> {
         element.style.removeProperty('display');
     }
 
-    // Установить изображение с алтернативным текстом
+    // Установить изображение с альтернативным текстом
     protected setImage(element: HTMLImageElement, src: string, alt?: string) {
         if (element) {
             element.src = src;
