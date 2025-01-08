@@ -9,11 +9,9 @@ import { CatalogView } from './components/view/catalogView';
 import { CatalogPresenter } from './components/presenter/catalogPresenter';
 import { BasketButtonView } from './components/view/basketButtonView';
 import { OrderingPresenter } from './components/presenter/orderingPresenter';
-import { ModalManagementService } from './utils/modalManagementService';
+import { ModalPresenter } from './components/presenter/modalPresenter';
 import { ModalView } from './components/view/modalView';
-import { ProductModel } from './components/dataClasses/productModel';
-import { BasketView } from './components/view/basketView';
-import { OrderingViewEvents, SendOrderingSuccessResult, SendOrderingErrorResult, ModalEvents, OrderingDataEvents } from './types';
+import { OrderingViewEvents, OrderingDataEvents, IProduct } from './types';
 
 // Инициализация базовых классов и сервисов
 const events = new EventEmitter();
@@ -60,15 +58,13 @@ events.on(OrderingViewEvents.ClientFormAccepted, () => {
 
 });
 // Инициализация презентера
-const modalService = new ModalManagementService(modalView, events, productsData, orderingData, document.querySelectorAll('template'));
-const catalogPresenter: CatalogPresenter
-  = new CatalogPresenter(events, catalogView, document.querySelector('#card-catalog'));
-const orderingPresenter: OrderingPresenter
-  = new OrderingPresenter(events, modalService, orderingData, basketButtonView, productsData, document.querySelector('#basket'), document.querySelector('#card-basket'));
-
+new ModalPresenter(modalView, events, productsData, orderingData, document.querySelectorAll('template'));
+new CatalogPresenter(events, catalogView, document.querySelector('#card-catalog'));
+new OrderingPresenter(events, orderingData, basketButtonView, productsData);
 // Загрузить данные с сервера
 api.getProductList().then(res => {
-  productsData.addProducts(res.map(item => new ProductModel(item, events)));
+  productsData.addProducts(res.map(item => item as IProduct));
+  //productsData.addProducts(res.map(item => new ProductModel(item, events)));
 })
 
 

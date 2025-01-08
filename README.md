@@ -57,63 +57,123 @@ export type TProductCategory =
 ```
 export type TPaymentType = 'online ' | 'cash';
 ```
+### Перечисление TemplateIds
+Служит для хранения статуса открытого модального окна.
+```
+export enum TemplateIds {
+	Success = 'success',
+	Error = 'error',
+	CardCatalog = 'card-catalog',
+	CardPreview = 'card-preview',
+	CardBasket = 'card-basket',
+	Basket = 'basket',
+	Order = 'order',
+	Contacts = 'contacts'
+}
+```
+
+### Интерфейс IOrdering
+Описание данных заказа. Является основой для отображения форм заказа
+```
+export interface IOrdering {
+	email: string;
+	phone: string;
+	payment: TPaymentType;
+	address: string;
+	total: number;
+	items: string[];
+}
+```
+
+### Тип TOrderDetails
+Тип, хранящий данные, выводимые в форме заказа, для уточнения адреса и способа оплаты
+```
+export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
+```
+
+### Тип TClientDetails
+Тип, хранящий данные, необходимые для заполнения информации о клиенте.
+```
+export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
+```
+
+### Интерфейс IOrderingData
+Предназначен для предоставления методов для формирования заказа
+Обязует реализовать следующие методы:
+- setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void> - Установить детали оплаты и адрес
+- setClientDetails(details: TClientDetails, isEmptyCheck: boolean): Promise<void> - Установить информацию о клиенте
+- addProduct(product: IProduct): boolean - добавить продукт в корзину
+- deleteProduct(product: IProduct): boolean - удалить продукт из корзины
+- getTotal(): number - Получить общую стоимость товаров в корзине
+- getOrdering(): IOrdering - Получить данные заказа подготовленные к отправке
+- checkOrdering(): Promise<boolean> - Проверить корректность заказа
+- clear(): void - Очистить заказ полностью
+Обязует реализовать следующие свойства:
+- basket: IProduct[] - получить коллекцию товаров в корзине
+- orderDetails: TOrderDetails - получить детали оплаты и адрес
+- clientDetails: TClientDetails - получить информацию о клиенте
+
+```
+export interface IOrderingData {
+	basket: IProduct[];
+	setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean): Promise<void>;
+	orderDetails: TOrderDetails;
+	setClientDetails(details: TClientDetails, isEmptyCheck: boolean): Promise<void>;
+	clientDetails: TClientDetails;
+	addProduct(product: IProduct): boolean;
+	deleteProduct(product: IProduct): boolean;
+	getTotal(): number;
+	getOrdering(): IOrdering;
+	checkOrdering(): Promise<boolean>;
+	clear(): void;
+}
+```
+
 ### Интерфейс IProduct
 Описание товара, продаваемого в магазине. Является основой для отображения товаров в каталоге и корзине
 ```
-interface IProduct {
+export interface IProduct {
 	id: string;
 	title: string;
 	description: string;
 	image: string;
 	category: TProductCategory;
 	price: number;
+	isInTheBasket: boolean;
 }
 ```
-### IOrderingData
-Описание данных заказа. Является основой для отображения форм заказа
-```
-interface IOrdering {
-	email: string;
-	phone: string;
-	paymentType: TPaymentType;
-	address: string;
-	total: number;
-	items: string[];
 
-	Send(): void;
-  AddProducts(IProduct[]): void;
-}
-```
 ### IProductsData
 Интерфейс, описывающий коллекцию товаров, используется для отображения
+Обязует реализовать методы:
+- addProducts(products: IProduct[]): void - Добавление коллекции товаров в память
+- getProduct(id: string): IProduct - Получить один продукт по id из памяти
+
 ```
 interface IProductsData {
-	products: IProduct[];
-	selectedProduct: IProduct | null;
-
-	addProduct(product: IProduct): void;
+	addProducts(products: IProduct[]): void;
 	getProduct(id: string): IProduct;
-	updateProduct(id: string, newProduct: IProduct): void;
-	deleteProduct(id: string): void;
 }
 ```
-### TProductCardData
-Тип, хранящий данные, необходимые для отображения карточки товаров
-```
-export type TProductCardData = Pick<IProduct, 'id' | 'title' | 'image' | 'description' | 'category' | 'price'>;
-```
-### TOrderDetails
-Тип, хранящий данные, выводимые в форме заказа, для уточнения адреса и способа оплаты
-```
-export type TOrderDetails = Pick<IOrdering, 'paymentType' | 'address'>;
-```
-### TClientDetails
-Тип, хранящий данные, необходимые для заполнения информации о клиенте.
-```
-export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
-```
-## Архитектура приложения
 
+### Тип SendOrderingSuccessResult
+Отражает ответ сервера при успешной отправке заказа
+```
+export type SendOrderingSuccessResult = {
+	id: string;
+	total: number;
+}
+```
+
+### Тип SendOrderingErrorResult
+Отражает ответ сервера при успешной отправке заказа
+```
+export type SendOrderingErrorResult = {
+	error: string;
+}
+```
+
+## Архитектура приложения
 ### Базовый код
 
 #### Класс [API](src/components/base/api.ts)
@@ -247,11 +307,71 @@ _basketButton - кнопка для открытия окна корзины
 _cardCatalog -  компонент, содержащий каталог товаров
 
 ### Слой коммуникации
-
-#### Класс AppApi
+#### Класс LarekApi
 Обеспечивает взаимодействие фронетенда с бэкендом. Принимает экземпляр класса Api.
+Реализует следующие методы:
+- `async getProductList(): Promise<IProduct[]>` - получить список товаров
+- `async postOrder(ordering: IOrdering): Promise<object>` - отправить заказ на сервер
 
-#### [Презентер](src/index.ts)
+#### Класс презентера CatalogPresenter
+Отвечает за отображение каталога товаров.
+##### Конструктор
+`constructor(events: IEvents, catalog: ICatalog, productTemplate: HTMLTemplateElement)`
+Принимает экземпляр класса `IEvents` для работы с глобальными событиями, экземпляр класса `ICatalog`, отражающий представление каталога товаров и шаблон для отображения карточки товара.
+#### Класс презентера OrderingPresenter
+Отвечает за отображение информации о заказе и связывает слой данных и слой отображения.
+##### Конструктор
+`constructor(events: IEvents, orderingData: IOrderingData, basketButtonView: BasketButtonView, productsData: IProductsData)`
+Принимает экземпляр класса `IEvents` для работы с глобальными событиями, экземпляр класса `IOrderingData`, отражающий обеспечивающий методы формирования и доступа к заказу, экземпляр класса `BasketButtonView`, отражающий кнопку для открытия корзины и экземпляр класса `IProductsData`, дающий доступ к данным о продуктах представленных на витрине.
+#### Класс презентера ModalPresenter
+Отвечает за отображение модальных окон. Знает какие модальные окна необходимо отобразить и как их отобразить.
+`constructor(modal: ModalView, events: IEvents, productsData: IProductsData, orderingData: IOrderingData, templates: NodeListOf<HTMLTemplateElement>)`
+Принимает экземпляр класса `ModalView`, отражающий модальное окно, экземпляр класса `IEvents` для работы с глобальными событиями, экземпляр класса `IProductsData`, отражающий доступ к данным о продуктах представленных на витрине, экземпляр класса `IOrderingData`, отражающий обеспечивающий методы формирования и доступа к заказу, экземпляр класса `NodeListOf<HTMLTemplateElement>` - коллекция шаблонов для создания тел модальных окон.
+
+#### Типы событий, используемые для обмена данными между слоями приложения
+```typescript
+// ----------Products ModelEvents ----------
+export enum ProductsDataEvents {
+	CatalogChanged = 'products:changed',
+}
+
+// ----------Ordering ModelEvents ----------
+export enum OrderingDataEvents {
+	BasketUpdated = 'basket:updated',
+	TotalUpdated = 'basket:total',
+	SuccessSent = 'order:successSent',
+	ErrorSent = 'order:errorSent',
+}
+
+// ----------View Events ----------
+export enum ProductItemEvents {
+	ProductSelected = 'product:selected',
+	BuyProduct = 'product:buy',
+	RemoveProduct = 'product:remove'
+}
+
+export enum OrderingViewEvents {
+	OpenBasket = 'basket:openBasket',
+	BasketAccepted = 'basket:accepted',
+	PaymentFormAccepted = 'order:paymentAccepted',
+	PaymentFormChanged = 'order:paymentFormChanged',
+	ClientFormAccepted = 'order:clientFormAccepted',
+	ClientFormChanged = 'order:clientFormChanged',
+}
+
+export enum ModalEvents {
+	Closed = 'modal:closed',
+	AskToClose = 'modal:askToClose'
+}
+
+// --------- ValidationErrorFields ----------
+export enum FormValidationEvents {
+	ValidationError = 'validation:error',
+	ValidationSuccess = 'validation:success'
+}
+```
+
+
 Код, описывающий взаимодействие слоя данных и слоя отображения расположен в файле `index.ts`. Этот файл не является презентером в чистом виде, но выполняет его функции в целях упрощения разработки.
 Взаимодействие осуществляется с помощью генерируемых слоями событий.
 ##### События, генерируемые моделями данных

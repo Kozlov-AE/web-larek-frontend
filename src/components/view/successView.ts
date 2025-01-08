@@ -5,7 +5,7 @@ import { IEvents } from "../base/events";
 export class SuccessView extends Component<SendOrderingSuccessResult> {
   private _events: IEvents;
   private _title: HTMLElement;
-  private _description: HTMLElement;
+  private readonly _description: HTMLElement;
   private _button: HTMLButtonElement;
 
 

@@ -1,5 +1,4 @@
 import {
-  checkIProduct,
   IOrdering,
   IProduct,
 } from '../types';
@@ -12,8 +11,8 @@ export class LarekApi extends Api {
 
   async getProductList(): Promise<IProduct[]>{
     const response = await super.get('/product/');
-    if ('items' in response && Array.isArray(response.items) && response.items.every(checkIProduct)) {
-			return response.items;
+    if ('items' in response && Array.isArray(response.items)) {
+			return response.items as IProduct[];
 		}
     console.error("getProductList error: there is something wrong, returning empty list")
 		return [];

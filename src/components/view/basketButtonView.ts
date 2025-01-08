@@ -1,9 +1,9 @@
-import { IOrdering, IOrderingData, OrderingViewEvents } from "../../types";
+import { IOrdering, OrderingViewEvents } from "../../types";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
 export class BasketButtonView extends Component<IOrdering> {
-    private _itemsCounter: HTMLElement;
+    private readonly _itemsCounter: HTMLElement;
     private _openButton: HTMLButtonElement;
 
     private _events: IEvents;

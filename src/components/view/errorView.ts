@@ -4,8 +4,8 @@ import { IEvents } from "../base/events";
 
 export class ErrorView extends Component<SendOrderingErrorResult> {
   private _events: IEvents;
-  private _error: HTMLElement;
-  private _button: HTMLButtonElement;
+  private readonly _error: HTMLElement;
+  private readonly _button: HTMLButtonElement;
   public constructor(container: HTMLElement, events: IEvents) {
     super(container);
 

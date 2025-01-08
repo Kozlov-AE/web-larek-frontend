@@ -17,7 +17,6 @@ export class CatalogPresenter {
 		this._catalogItemTemplate = productTemplate;
 
 		this.subscribeToDataEvents();
-		this.subscribeToViewEvents();
 	}
 
 	private subscribeToDataEvents(): void {
@@ -30,10 +29,5 @@ export class CatalogPresenter {
 			}
 			this._catalogView.render( { catalog:renderedProducts } );
 		})
-	}
-
-	private subscribeToViewEvents(): void {
-
-		return;
 	}
 }

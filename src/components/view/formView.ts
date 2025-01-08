@@ -7,7 +7,7 @@ export abstract class FormView<T> extends Component<T> {
   protected _formData: T;
   protected _errors: HTMLElement;
   protected _submitButton: HTMLButtonElement;
-  constructor(container: HTMLElement, events: IEvents, formData?: T) {
+  protected constructor(container: HTMLElement, events: IEvents, formData?: T) {
     super(container);
     this._errors = this.container.querySelector('.form__errors');
     this._submitButton = this.container.querySelector('button[type="submit"]');

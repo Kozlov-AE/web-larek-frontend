@@ -1,13 +1,12 @@
 import { ModalEvents } from "../../types";
-import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
 export class ModalView {
   private readonly activeClass = 'modal_active';
-  private _container: HTMLElement;
+  private readonly _container: HTMLElement;
   private _content: HTMLElement;
 
-  private _isOpened: boolean = false;
+  private _isOpened = false;
 
   private _closeButton: HTMLButtonElement;
 
@@ -33,7 +32,6 @@ export class ModalView {
 
   public show(){
     this._container.classList.add(this.activeClass);
-    this._events.emit(ModalEvents.Opened);
     this._isOpened = true;
   }
 

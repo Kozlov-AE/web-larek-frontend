@@ -15,7 +15,7 @@ export class OrderingData implements IOrderingData {
     this._validator = validationService;
   }
 
-  async setOrderDetails(details: TOrderDetails, isEmptyCheck: boolean = false): Promise<void> {
+  async setOrderDetails(details: TOrderDetails, isEmptyCheck = false): Promise<void> {
     this._orderingDetails.payment = details.payment;
     this._orderingDetails.address = details.address;
     const errors: TErroredField[] = [];
@@ -59,7 +59,7 @@ export class OrderingData implements IOrderingData {
     return this._orderingDetails;
   }
 
-  async setClientDetails(details: TClientDetails, isEmptyCheck: boolean = false): Promise<void> {
+  async setClientDetails(details: TClientDetails, isEmptyCheck = false): Promise<void> {
     this._clientDetails.email = details.email;
     this._clientDetails.phone = details.phone;
     const errors: TErroredField[] = [];
@@ -131,12 +131,7 @@ export class OrderingData implements IOrderingData {
     prs.push(this._validator.checkNonEmptyString(ordering.address));
     if(ordering.items.length > 0 && ordering.total > 0) {
       await Promise.all(prs).then(x => {
-        if(x.every(c => c)) {
-          return true;
-        }
-        else {
-          return false;
-        }
+        return x.every(c => c);
       });
     }
     return false;
@@ -147,7 +142,7 @@ export class OrderingData implements IOrderingData {
     this._basket = [];
     this._clientDetails = {email: '', phone: ''};
     this._orderingDetails = {payment: 'cash', address: ''};
-    this._events.emit(OrderingDataEvents.TotalUpdated, this.getTotal);
+    this._events.emit(OrderingDataEvents.TotalUpdated, {total: this.getTotal()});
   }
 
   addProduct(product: IProduct): boolean {
@@ -174,7 +169,7 @@ export class OrderingData implements IOrderingData {
     return this._basket.reduce((sum, p) => sum + p.price, 0);
   }
 
-  private writeException(error: any) {
+  private writeException(error: string) {
     console.error(error);
   }
 

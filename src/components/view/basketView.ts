@@ -1,11 +1,9 @@
-import { it } from "node:test";
-import { IBasket, IOrdering, IProduct, OrderingDataEvents, OrderingViewEvents, ProductItemEvents } from "../../types";
+import { IBasket, OrderingViewEvents } from "../../types";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
-import { object } from "yup";
 
 export class BasketView extends Component<IBasket> {
-  private _totalCost: HTMLElement;
+  private readonly _totalCost: HTMLElement;
   private _toOrderButton: HTMLButtonElement;
   private _basket: HTMLUListElement
   private _events: IEvents;
@@ -18,18 +16,14 @@ export class BasketView extends Component<IBasket> {
     this._toOrderButton = this.container.querySelector('.basket__button');
     this._basket = this.container.querySelector('.basket__list');
 
-    this._toOrderButton.addEventListener('click', event => {
+    this._toOrderButton.addEventListener('click', () => {
       this._events.emit(OrderingViewEvents.BasketAccepted);
     });
   }
 
   set basket(items: HTMLElement[]) {
     this._basket.replaceChildren(...items);
-    if (items.length === 0) {
-      this._toOrderButton.disabled = true;
-    } else {
-      this._toOrderButton.disabled = false;
-    }
+    this._toOrderButton.disabled = items.length === 0;
   }
 
   set totalCost(cost: number) {

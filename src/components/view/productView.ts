@@ -1,4 +1,4 @@
-import { IProduct, TProductCategory, ProductItemEvents } from '../../types';
+import { IProduct, TProductCategory } from '../../types';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 import { CDN_URL } from '../../utils/constants';
@@ -15,9 +15,9 @@ export abstract class ProductView extends Component<IProduct> {
 	protected _category: HTMLElement;
 	protected _button: HTMLButtonElement;
 
-	protected _hasPrice: boolean = true;
+	protected _hasPrice = true;
 
-	constructor(container: HTMLElement, events: IEvents) {
+	protected constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this._events = events;
 

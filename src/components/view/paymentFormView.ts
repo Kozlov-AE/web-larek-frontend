@@ -1,4 +1,4 @@
-import { IOrdering, OrderingViewEvents, TErroredField, TOrderDetails } from "../../types";
+import { OrderingViewEvents, TOrderDetails } from "../../types";
 import { IEvents } from "../base/events";
 import { FormView } from "./formView";
 

@@ -1,16 +1,16 @@
-import { IEvents } from '../components/base/events';
-import { BasketView } from '../components/view/basketView';
-import { ClientFormView } from '../components/view/clientFormView';
-import { ErrorView } from '../components/view/errorView';
-import { ModalView } from '../components/view/modalView';
-import { PaymentFormView } from '../components/view/paymentFormView';
-import { ProductBasketView } from '../components/view/productBasketView';
-import { ProductPreviewView } from '../components/view/productPreviewView';
-import { SuccessView } from '../components/view/successView';
-import { FormValidationEvents, IOrderingData, IProduct, IProductsData, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, SendOrderingErrorResult, SendOrderingSuccessResult, TemplateIds, TErroredField } from '../types';
-import { cloneTemplate, isTemplateId } from './utils';
+import { IEvents } from '../base/events';
+import { BasketView } from '../view/basketView';
+import { ClientFormView } from '../view/clientFormView';
+import { ErrorView } from '../view/errorView';
+import { ModalView } from '../view/modalView';
+import { PaymentFormView } from '../view/paymentFormView';
+import { ProductBasketView } from '../view/productBasketView';
+import { ProductPreviewView } from '../view/productPreviewView';
+import { SuccessView } from '../view/successView';
+import { FormValidationEvents, IOrderingData, IProduct, IProductsData, ModalEvents, OrderingDataEvents, OrderingViewEvents, ProductItemEvents, SendOrderingErrorResult, SendOrderingSuccessResult, TemplateIds, TErroredField } from '../../types';
+import { cloneTemplate, isTemplateId } from '../../utils/utils';
 
-export class ModalManagementService {
+export class ModalPresenter {
 	private readonly _events: IEvents;
 	private readonly _productsData: IProductsData;
 	private readonly _orderingData: IOrderingData;
@@ -21,7 +21,6 @@ export class ModalManagementService {
 
 	private _templates: Map<string, HTMLTemplateElement> = new Map();
 
-	private _productPreview: ProductPreviewView;
 	private _basketBody: BasketView;
 	private _paymentForm: PaymentFormView;
 	private _clientForm: ClientFormView;
@@ -36,13 +35,11 @@ export class ModalManagementService {
 
 		this.setTemplates(templates);
 
-		this._productPreview = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, false);
 		this._basketBody = new BasketView(cloneTemplate(this.getTemplate(TemplateIds.Basket)), this._events);
 		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events);
 		this._clientForm = new ClientFormView(cloneTemplate(this.getTemplate(TemplateIds.Contacts)), this._events);
 		this._successBody = new SuccessView(cloneTemplate(this.getTemplate(TemplateIds.Success)), this._events);
 		this._errorBody = new ErrorView(cloneTemplate(this.getTemplate(TemplateIds.Error)), this._events);
-
 
 		this.subscribeToEvents();
 	}
@@ -122,14 +119,6 @@ export class ModalManagementService {
 			} else if (this._openedModal === TemplateIds.CardPreview) {
 				this._modal.setContent(view);
 			}
-		}
-	}
-
-	private updateProductPreview(product: IProduct | null) {
-		if (this._openedModal === TemplateIds.CardPreview) {
-			const prView = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, product.isInTheBasket);
-			const view = prView.render(product);
-			this._modal.setContent(view);
 		}
 	}
 
