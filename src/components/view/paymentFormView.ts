@@ -16,24 +16,19 @@ export class PaymentFormView extends FormView<TOrderDetails> {
 
     if (!details) {
       this._formData = {payment: 'cash', address: ''};
-      this.toggleClass(this._paymentCashButton, 'button_alt-active');
-    } else {
-      this.address = this._formData.address;
-      this.payment = this._formData.payment;
-      this._formData.payment === 'card' ? this.toggleClass(this._paymentCardButton, 'button_alt-active') : this.toggleClass(this._paymentCashButton, 'button_alt-active');;
     }
+    this.address = this._formData.address;
+    this.payment = this._formData.payment;
 
     this.container.addEventListener('submit', this.submit.bind(this));
 
     this._paymentCardButton.addEventListener('click', () => {
-      this.setButtonActive('card');
-      this._formData.payment = 'card';
+      this.payment = 'card';
       this._events.emit(OrderingViewEvents.PaymentFormChanged, this._formData);
     });
 
     this._paymentCashButton.addEventListener('click', () => {
-      this.setButtonActive('cash');
-      this._formData.payment = 'cash';
+      this.payment = 'cash';
       this._events.emit(OrderingViewEvents.PaymentFormChanged, this._formData);
     });
 
@@ -41,25 +36,23 @@ export class PaymentFormView extends FormView<TOrderDetails> {
       this._formData.address = this._address.value;
       this._events.emit(OrderingViewEvents.PaymentFormChanged, this._formData);
     });
-
-    this.setButtonActive(this._formData.payment);
   }
 
   set address(address: string) {
     this._address.value = address;
   }
 
-  set payment(type: string) {
-    this.setButtonActive(type);
+  set payment(type: 'card' | 'cash') {
+    this._formData.payment = type;
+    this.setButtonActive();
   }
 
-  private setButtonActive(paymentType: string) {
-    if (paymentType === 'card' && this._formData.payment !== 'card') {
-      this.toggleClass(this._paymentCardButton, 'button_alt-active');
-      this.toggleClass(this._paymentCashButton, 'button_alt-active');
-    } else if (paymentType === 'cash' && this._formData.payment !== 'cash') {
-      this.toggleClass(this._paymentCardButton, 'button_alt-active');
-      this.toggleClass(this._paymentCashButton, 'button_alt-active');
+  private setButtonActive() {
+    if (this._formData.payment === 'card') {
+      this.toggleCard();
+    }
+    if (this._formData.payment === 'cash') {
+      this.toggleCash();
     }
   }
 
@@ -72,5 +65,16 @@ export class PaymentFormView extends FormView<TOrderDetails> {
   protected submit(event: Event): void {
     event.preventDefault();
     this._events.emit(OrderingViewEvents.PaymentFormAccepted, this._formData);
+  }
+
+  private toggleCard(state: boolean = true) {
+    this.toggleClass(this._paymentCardButton, 'button_alt-active', state);
+    this.toggleClass(this._paymentCashButton, 'button_alt-active', !state);
+  }
+
+  private toggleCash(state: boolean = true) {
+    this.toggleClass(this._paymentCashButton, 'button_alt-active', state);
+    this.toggleClass(this._paymentCardButton, 'button_alt-active', !state);
+
   }
 }

@@ -20,23 +20,27 @@ export abstract class FormView<T> extends Component<T> {
     if(errors.length > 0) {
       const text = errors.map(x => `${x.message}`).join('\n');
       this.setText(this._errors, text);
-      this.setDisabled(this._submitButton, true);
+      this.toggleButton(true);
     }
     else {
       this.setText(this._errors, '');
-      this.setDisabled(this._submitButton, false);
+      this.toggleButton(false);
     }
     return this.render();
   }
 
   public resetErrors(): HTMLElement {
     this.setText(this._errors, '');
-    this.setDisabled(this._submitButton, false);
+    this.toggleButton(false);
     return this.render();
   }
 
   protected abstract submit(event: Event): void;
   protected reset(): void{
-    this.setDisabled(this._submitButton, true);
+    this.toggleButton(true);
+  }
+
+  protected toggleButton(state: boolean) {
+    this.setDisabled(this._submitButton, state);
   }
 }
