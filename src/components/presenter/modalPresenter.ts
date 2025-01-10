@@ -123,8 +123,10 @@ export class ModalPresenter {
 	}
 
 	private showBasket() {
-		const items = this._orderingData.basket.map(p => {
-			return new ProductBasketView(cloneTemplate(this.getTemplate(TemplateIds.CardBasket)), this._events).render(p);
+		const items = this._orderingData.basket.map((p, index) => {
+			const pr = new ProductBasketView(cloneTemplate(this.getTemplate(TemplateIds.CardBasket)), this._events);
+			pr.index = index + 1;
+			return pr.render(p);
 		});
 		const modalBody = this._basketBody.render({
 			basket: items,
