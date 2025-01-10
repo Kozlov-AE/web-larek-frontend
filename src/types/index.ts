@@ -68,6 +68,7 @@ export type SendOrderingErrorResult = {
 }
 
 // ---------- UI types ----------
+export type TModal = { content: HTMLElement }
 export type TOrderDetails = Pick<IOrdering, 'payment' | 'address'>;
 export type TClientDetails = Pick<IOrdering, 'email' | 'phone'>;
 

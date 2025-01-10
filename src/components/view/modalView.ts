@@ -1,9 +1,9 @@
-import { ModalEvents } from "../../types";
+import { ModalEvents, TModal } from "../../types";
+import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
-export class ModalView {
+export class ModalView extends Component<TModal> {
   private readonly activeClass = 'modal_active';
-  private readonly _container: HTMLElement;
   private _content: HTMLElement;
 
   private _isOpened = false;
@@ -13,8 +13,8 @@ export class ModalView {
   private readonly _events: IEvents;
 
   constructor (modalContainer: HTMLElement, events: IEvents){
+    super(modalContainer);
     this._events = events;
-    this._container = modalContainer;
     this._content = modalContainer.querySelector('.modal__content')
 
     this._closeButton = modalContainer.querySelector('.modal__close')
@@ -23,28 +23,27 @@ export class ModalView {
       this.hide();
     });
 
-    this._container.addEventListener('click', event => {
-      if (event.target === this._container){
+    this.container.addEventListener('click', event => {
+      if (event.target === this.container){
         this.hide();
       }
     });
   }
 
   public show(){
-    this._container.classList.add(this.activeClass);
-    this._isOpened = true;
+    if (!this._isOpened){
+      this.toggleClass(this.container, this.activeClass);
+      this._isOpened = true;
+    }
   }
 
   public hide(){
-    this._container.classList.remove(this.activeClass);
-    this._content.innerHTML = '';
-    this._events.emit(ModalEvents.Closed);
-    this._isOpened = false;
-  }
-
-  public toggle(){
-    this._isOpened = !this._isOpened;
-    this._container.classList.toggle(this.activeClass);
+    if (this._isOpened){
+      this.toggleClass(this.container, this.activeClass);
+      this._content.innerHTML = '';
+      this._events.emit(ModalEvents.Closed);
+      this._isOpened = false;
+    }
   }
 
   public setContent(content: HTMLElement){
