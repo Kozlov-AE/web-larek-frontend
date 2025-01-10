@@ -111,7 +111,7 @@ export class ModalPresenter {
 			const productData = this._productsData.getProduct(product.id);
 			const prView = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, productData.isInTheBasket);
 			if (!productData.price) {
-				prView.StopBuy();
+				prView.stopBuy();
 			}
 			const view = prView.render(productData);
 			if (!this._openedModal) {
