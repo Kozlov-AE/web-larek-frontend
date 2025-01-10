@@ -85,6 +85,12 @@ export interface IOrdering {
 }
 ```
 
+### Тип TModal
+Тип, хранящий данные о модальном окне
+```typescript
+export type TModal = { content: HTMLElement }
+```
+
 ### Тип TOrderDetails
 Тип, хранящий данные, выводимые в форме заказа, для уточнения адреса и способа оплаты
 ```typescript

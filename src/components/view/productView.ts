@@ -58,7 +58,7 @@ export abstract class ProductView extends Component<IProduct> {
 	}
 
 	set price(price: string | null) {
-		const text = price === null ? 'Бесценно' : price;
+		const text = price === null ? 'Бесценно' : price + ' синапсов';
 		super.setText(this._price, text);
 	}
 
@@ -71,7 +71,7 @@ export abstract class ProductView extends Component<IProduct> {
 		this.container = null;
 	}
 
-	StopBuy() {
-		this._button.disabled = true;
+	stopBuy() {
+		this.setDisabled(this._button, true);
 	}
 }

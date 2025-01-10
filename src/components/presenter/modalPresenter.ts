@@ -36,7 +36,7 @@ export class ModalPresenter {
 		this.setTemplates(templates);
 
 		this._basketBody = new BasketView(cloneTemplate(this.getTemplate(TemplateIds.Basket)), this._events);
-		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events);
+		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events, this._orderingData.orderDetails);
 		this._clientForm = new ClientFormView(cloneTemplate(this.getTemplate(TemplateIds.Contacts)), this._events);
 		this._successBody = new SuccessView(cloneTemplate(this.getTemplate(TemplateIds.Success)), this._events);
 		this._errorBody = new ErrorView(cloneTemplate(this.getTemplate(TemplateIds.Error)), this._events);
@@ -111,7 +111,7 @@ export class ModalPresenter {
 			const productData = this._productsData.getProduct(product.id);
 			const prView = new ProductPreviewView(cloneTemplate(this.getTemplate(TemplateIds.CardPreview)), this._events, productData.isInTheBasket);
 			if (!productData.price) {
-				prView.StopBuy();
+				prView.stopBuy();
 			}
 			const view = prView.render(productData);
 			if (!this._openedModal) {
@@ -123,8 +123,10 @@ export class ModalPresenter {
 	}
 
 	private showBasket() {
-		const items = this._orderingData.basket.map(p => {
-			return new ProductBasketView(cloneTemplate(this.getTemplate(TemplateIds.CardBasket)), this._events).render(p);
+		const items = this._orderingData.basket.map((p, index) => {
+			const pr = new ProductBasketView(cloneTemplate(this.getTemplate(TemplateIds.CardBasket)), this._events);
+			pr.index = index + 1;
+			return pr.render(p);
 		});
 		const modalBody = this._basketBody.render({
 			basket: items,

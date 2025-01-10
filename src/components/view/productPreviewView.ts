@@ -7,13 +7,13 @@ export class ProductPreviewView extends ProductView {
     super(container, events);
 
     if (isInTheBasket) {
-      this._button.textContent = 'Отменить';
+      this.setText(this._button, 'Отменить');
       this._button.addEventListener('click', event => {
         event.stopPropagation();
         this._events.emit(ProductItemEvents.RemoveProduct, this);
       });
     } else {
-      this._button.textContent = 'В корзину';
+      this.setText(this._button, 'В корзину');
       this._button.addEventListener('click', event => {
         event.stopPropagation();
         this._events.emit(ProductItemEvents.BuyProduct, this);

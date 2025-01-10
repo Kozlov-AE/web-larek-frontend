@@ -64,7 +64,8 @@ new OrderingPresenter(events, orderingData, basketButtonView, productsData);
 // Загрузить данные с сервера
 api.getProductList().then(res => {
   productsData.addProducts(res.map(item => item as IProduct));
-  //productsData.addProducts(res.map(item => new ProductModel(item, events)));
+}).catch(err => {
+  console.error('Error loading products: ' + err);
 })
 
 
