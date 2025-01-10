@@ -72,6 +72,6 @@ export abstract class ProductView extends Component<IProduct> {
 	}
 
 	StopBuy() {
-		this._button.disabled = true;
+		this.setDisabled(this._button, true);
 	}
 }

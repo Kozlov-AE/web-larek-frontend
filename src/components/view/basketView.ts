@@ -23,7 +23,7 @@ export class BasketView extends Component<IBasket> {
 
   set basket(items: HTMLElement[]) {
     this._basket.replaceChildren(...items);
-    this._toOrderButton.disabled = items.length === 0;
+    this.setDisabled(this._toOrderButton, items.length === 0);
   }
 
   set totalCost(cost: number) {
