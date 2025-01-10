@@ -36,7 +36,7 @@ export class ModalPresenter {
 		this.setTemplates(templates);
 
 		this._basketBody = new BasketView(cloneTemplate(this.getTemplate(TemplateIds.Basket)), this._events);
-		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events);
+		this._paymentForm = new PaymentFormView(cloneTemplate(this.getTemplate(TemplateIds.Order)), this._events, this._orderingData.orderDetails);
 		this._clientForm = new ClientFormView(cloneTemplate(this.getTemplate(TemplateIds.Contacts)), this._events);
 		this._successBody = new SuccessView(cloneTemplate(this.getTemplate(TemplateIds.Success)), this._events);
 		this._errorBody = new ErrorView(cloneTemplate(this.getTemplate(TemplateIds.Error)), this._events);

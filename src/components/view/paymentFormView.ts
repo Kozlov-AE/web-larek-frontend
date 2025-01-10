@@ -7,7 +7,7 @@ export class PaymentFormView extends FormView<TOrderDetails> {
   private _paymentCashButton: HTMLButtonElement;
   private _address: HTMLInputElement;
 
-  constructor(container: HTMLElement, events: IEvents, details?: TOrderDetails) {
+  constructor(container: HTMLElement, events: IEvents, details: TOrderDetails = null) {
     super(container, events, details);
 
     this._paymentCardButton = this.container.querySelector('button[name="card"]');
@@ -16,25 +16,25 @@ export class PaymentFormView extends FormView<TOrderDetails> {
 
     if (!details) {
       this._formData = {payment: 'cash', address: ''};
+      this.toggleClass(this._paymentCashButton, 'button_alt-active');
     } else {
       this.address = this._formData.address;
       this.payment = this._formData.payment;
+      this._formData.payment === 'card' ? this.toggleClass(this._paymentCardButton, 'button_alt-active') : this.toggleClass(this._paymentCashButton, 'button_alt-active');;
     }
 
     this.container.addEventListener('submit', this.submit.bind(this));
 
     this._paymentCardButton.addEventListener('click', () => {
+      this.setButtonActive('card');
       this._formData.payment = 'card';
       this._events.emit(OrderingViewEvents.PaymentFormChanged, this._formData);
-      this._paymentCardButton.classList.add('button_alt-active');
-      this._paymentCashButton.classList.remove('button_alt-active');
     });
 
     this._paymentCashButton.addEventListener('click', () => {
+      this.setButtonActive('cash');
       this._formData.payment = 'cash';
       this._events.emit(OrderingViewEvents.PaymentFormChanged, this._formData);
-      this._paymentCardButton.classList.remove('button_alt-active');
-      this._paymentCashButton.classList.add('button_alt-active');
     });
 
     this._address.addEventListener('input', () => {
@@ -50,24 +50,16 @@ export class PaymentFormView extends FormView<TOrderDetails> {
   }
 
   set payment(type: string) {
-    if (type === 'card') {
-      this._paymentCardButton.classList.add('button_alt-active');
-      this._paymentCashButton.classList.remove('button_alt-active');
-      this._formData.payment = 'card';
-    } else {
-      this._paymentCardButton.classList.remove('button_alt-active');
-      this._paymentCashButton.classList.add('button_alt-active');
-      this._formData.payment = 'cash';
-    }
+    this.setButtonActive(type);
   }
 
   private setButtonActive(paymentType: string) {
-    if (paymentType === 'card') {
-      this._paymentCardButton.classList.add('button_alt-active');
-      this._paymentCashButton.classList.remove('button_alt-active');
-    } else {
-      this._paymentCardButton.classList.remove('button_alt-active');
-      this._paymentCashButton.classList.add('button_alt-active');
+    if (paymentType === 'card' && this._formData.payment !== 'card') {
+      this.toggleClass(this._paymentCardButton, 'button_alt-active');
+      this.toggleClass(this._paymentCashButton, 'button_alt-active');
+    } else if (paymentType === 'cash' && this._formData.payment !== 'cash') {
+      this.toggleClass(this._paymentCardButton, 'button_alt-active');
+      this.toggleClass(this._paymentCashButton, 'button_alt-active');
     }
   }
 
