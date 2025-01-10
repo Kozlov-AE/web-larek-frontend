@@ -27,7 +27,7 @@ export class BasketView extends Component<IBasket> {
   }
 
   set totalCost(cost: number) {
-    this.setText(this._totalCost, cost);
+    this.setText(this._totalCost, cost + ' синапсов');
   }
 
   render(data?: Partial<IBasket>): HTMLElement {
