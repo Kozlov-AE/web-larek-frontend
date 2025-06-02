@@ -23,10 +23,9 @@ jobs:
 
       - name: Create env file
         run: |
-          touch .env
-          echo PUBLIC_URL=/stellar-burgers/ >> .env
-          echo BURGER_API_URL=https://norma.nomoreparties.space/api >> .env
-          cat .env
+          touch .env.production
+          API_ORIGIN=https://larek-api.nomoreparties.co >> .env.production
+          cat .env.production
       - name: Build 🔨
         run: |
           npm install
