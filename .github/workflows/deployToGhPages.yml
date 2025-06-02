@@ -1,0 +1,39 @@
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 22.16.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: '22.16.0'
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo PUBLIC_URL=/stellar-burgers/ >> .env
+          echo BURGER_API_URL=https://norma.nomoreparties.space/api >> .env
+          cat .env
+      - name: Build 🔨
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: dist/
