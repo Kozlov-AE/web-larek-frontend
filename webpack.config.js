@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { DefinePlugin } = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
+const { log } = require("console");
 
 require('dotenv').config({
   path: path.join(process.cwd(), process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env')
@@ -94,3 +95,8 @@ module.exports = () => {
   }
   return config;
 };
+
+console.log(`Is production: ${isProduction}`);
+console.log(`API_ORIGIN from .env file: ${process.env.API_ORIGIN}`);
+console.log(`Path to .env file: ${path.join(process.cwd(), process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env')}`);
+
