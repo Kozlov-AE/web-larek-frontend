@@ -24,7 +24,8 @@ jobs:
       - name: Create env file
         run: |
           touch .env.production
-          API_ORIGIN=https://larek-api.nomoreparties.co >> .env.production
+          echo API_ORIGIN=https://larek-api.nomoreparties.co >> .env.production
+          echo PUBLIC_URL=/web-larek-frontend/ >> .env.production
           cat .env.production
       - name: Build 🔨
         run: |
